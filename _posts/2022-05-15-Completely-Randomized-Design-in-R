@@ -1,0 +1,53 @@
+---
+layout: post
+title: "Completely Randomized Blocks in R"
+subtitle: "Analyzing CRD Experiments in R"
+background: '/img\posts\crd.png'
+---
+## Introduction
+CRD are basic experiments run using ANOVA techniques. This Section discusses how to perform them in R.
+Find the dataset below;
+https://github.com/StatisticianLeboo/statistics-topics/tree/ANOVA
+
+## CRD 
+## Example 1
+The data contains 4 tropical food stuffs A, B, C, and D tried on 20 chicks. Analyze the data at 5% level of significance.
+```{r}
+library(readxl)
+chicks <- read_excel("chics.xlsx")
+```
+
+Set the treatment column into factors
+```{r}
+chicks$Treatment<-as.factor(chicks$Treatment)
+```
+Performing ANOVA
+## Method 1
+```{r}
+mod1<-aov(Weight~Treatment, data = chicks)
+summary(mod1)
+```
+
+## Method 2
+```{r}
+chicksmodel<-lm(Weight~Treatment, data = chicks)
+anova(chicksmodel)
+```
+## LSD Test
+```{r}
+library(agricolae)
+LSD.test(chicksmodel,"Treatment", console = TRUE)
+```
+## Example 2
+The data contains the amount of electricity used in KWh in three towns. Test at 5% significance whether the amount of electricity used is the same in the 3 towns.
+The steps are as example 1
+
+```{r}
+library(readxl)
+electricity <- read_excel("electricity.xlsx")
+
+#Set the treatment variable to factor
+electricity$Town<-as.factor(electricity$Town)
+model2<-aov(Electricity_Used~Town, data=electricity)
+summary(model2)
+```
