@@ -52,5 +52,5 @@ electricity$Town<-as.factor(electricity$Town)
 model2<-aov(Electricity_Used~Town, data=electricity)
 summary(model2)
 ```
-Check out this Medium post from 
+Check out this story on Medium
 https://medium.com/@Statistician_Leboo/analyzing-completely-randomized-design-crd-in-r-64105fb605d9
