@@ -2,13 +2,14 @@
 layout: post
 title: "Completely Randomized Blocks in R"
 subtitle: "Analyzing CRD Experiments in R"
-background: '/img\posts\crd.png'
+background: '/img/posts/CRD_RBD/images.png'
 ---
 ## Introduction
 CRD are basic experiments run using ANOVA techniques. This Section discusses how to perform them in R.
 Find the dataset below;
 https://github.com/StatisticianLeboo/statistics-topics/tree/ANOVA
 
+![EXP](/img\posts\CRD_RBD\crd.png)
 ## CRD 
 ## Example 1
 The data contains 4 tropical food stuffs A, B, C, and D tried on 20 chicks. Analyze the data at 5% level of significance.
