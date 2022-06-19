@@ -7,7 +7,7 @@ background: '/img/posts/CRD_RBD/images.png'
 ## Introduction
 CRD are basic experiments run using ANOVA techniques. This Section discusses how to perform them in R.
 Find the dataset below;
-https://github.com/StatisticianLeboo/statistics-topics/tree/ANOVA
+url={https://github.com/StatisticianLeboo/statistics-topics/tree/ANOVA}
 
 ![EXP](/img\posts\CRD_RBD\crd.png)
 ## CRD 
