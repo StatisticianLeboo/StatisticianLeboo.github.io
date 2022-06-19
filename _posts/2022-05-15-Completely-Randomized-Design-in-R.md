@@ -7,7 +7,7 @@ background: '/img/posts/CRD_RBD/images.png'
 ## Introduction
 CRD are basic experiments run using ANOVA techniques. This Section discusses how to perform them in R.
 Find the dataset below;
-url={https://github.com/StatisticianLeboo/statistics-topics/tree/ANOVA}
+[https://github.com/StatisticianLeboo/statistics-topics/tree/ANOVA]
 
 ![EXP](/img\posts\CRD_RBD\crd.png)
 ## CRD 
@@ -53,4 +53,4 @@ model2<-aov(Electricity_Used~Town, data=electricity)
 summary(model2)
 ```
 Check out this story on Medium
-https://medium.com/@Statistician_Leboo/analyzing-completely-randomized-design-crd-in-r-64105fb605d9
+[https://medium.com/@Statistician_Leboo/analyzing-completely-randomized-design-crd-in-r-64105fb605d9]
