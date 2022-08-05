@@ -1,4 +1,4 @@
-I"�!<h2 id="randomized-block-design">Randomized Block Design</h2>
+I"�"<h1 id="randomized-block-design">Randomized Block Design</h1>
 <p>We use RBD experiments when the whole experimental area is not homogeneous. Variability is controlled by grouping the experimental area into relatively homogeneous groups known as blocks. Treatments are set into these blocks randomly and thus their means will give rise to unbiased estimates of the treatment effect.</p>
 
 <p>For example, suppose you want to study the milk production in dairy cows on certain diets (D1, D2, D3 and D4). The diet is the treatment. We can introduce factor type of cow so as to limit the variability since it is known that different breeds of cows produce different amount of milk. So we let the blocks be ( B1, B2 and B3) which represent ( Friesian, Guernsey and Ayrshire)
@@ -26,14 +26,14 @@ Note that:</p>
 <p>In this experiment we will seek to investigate test hypotheses:</p>
 
 <ol>
-  <li>The treatment effects differ significantly
-Null- αi=0, for all i</li>
-</ol>
-
-<p>Alternative- αi≠0, for any i</p>
-
-<ol>
-  <li>The block effects differ significantly</li>
+  <li>
+    <p>The treatment effects differ significantly
+Null- αi=0, for all i
+Alternative- αi≠0, for any i</p>
+  </li>
+  <li>
+    <p>The block effects differ significantly</p>
+  </li>
 </ol>
 
 <p>Null- βj=0, for all i</p>
@@ -49,8 +49,16 @@ Null- αi=0, for all i</li>
 <p><img src="/img/posts/CRD_RBD/rbdqn.jpg" alt="" />
 In this data, there are 4 blocks and 6 treatments. we are required to
 test whether treatments and blocks differ significantly at 5%
-significance level</p>
+significa<img src="/img/posts/CRD_RBD/rbdqnsol.png" alt="" />
+Following the steps shown you should obatin the ANOVA table as shown below;</p>
 
+<p>From the results, the F value for treatments is compared with F(5,15)= 2.90. This is less than 11.77, we can reject the null hypothesis and conclude the treatment differ significantly.</p>
+
+<p>As for the blocks, the value 4.78 is compared with F(3,15)=3.29, the null hypothesis is rejected.</p>
+
+<p>Further tests can be applied to select the most significant block and treatment.</p>
+
+<h2 id="rcode-for-analyzing-rbd-experiments">Rcode for analyzing RBD Experiments</h2>
 <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">readxl</span><span class="p">)</span><span class="w">
 </span><span class="n">RBD</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="s2">"RBD.xlsx"</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
@@ -59,31 +67,16 @@ significance level</p>
 
 <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">reshape2</span><span class="p">)</span><span class="w">
 </span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
-</span></code></pre></div></div>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## 
-## Attaching package: 'dplyr'
-
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-</code></pre></div></div>
-
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">RBD_new</span><span class="o">&lt;-</span><span class="n">RBD</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+</span><span class="n">RBD_new</span><span class="o">&lt;-</span><span class="n">RBD</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
   </span><span class="n">melt</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
   </span><span class="n">mutate</span><span class="p">(</span><span class="n">Block</span><span class="o">=</span><span class="n">variable</span><span class="p">,</span><span class="w">
          </span><span class="n">Treatments</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">Treatments</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
   </span><span class="n">select</span><span class="p">(</span><span class="o">-</span><span class="nf">c</span><span class="p">(</span><span class="n">variable</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
+<p>R uses Treatments as id variables to convert the data into long format. Check out the firts 9 observations of the long data format
+ <img src="/img/posts/CRD_RBD/longformat.jpg" alt="" /></p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Using Treatments as id variables
-</code></pre></div></div>
-
-<p>Performing ANOVA</p>
+<h2 id="performing-anova">Performing ANOVA</h2>
 
 <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Model3</span><span class="o">&lt;-</span><span class="n">aov</span><span class="p">(</span><span class="n">value</span><span class="o">~</span><span class="n">Treatments</span><span class="o">+</span><span class="n">Block</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">RBD_new</span><span class="p">)</span><span class="w">
 </span><span class="n">summary</span><span class="p">(</span><span class="n">Model3</span><span class="p">)</span><span class="w">
