@@ -1,0 +1,855 @@
+I"<h1 id="introduction-to-factorial-experiments">Introduction to Factorial Experiments</h1>
+
+<p>This is the last section on my series of the various designs of experiments using R. These designs are what are commonly referred to as one factor at a time experiment. 
+Make sure to read the previous post on CRD and RBD experiments.</p>
+
+<h2 id="what-are-factorial-experiments">What are Factorial Experiments?</h2>
+<p>Many experiments involve the study of the effects of two or more factors. In general, factorial designs are most efficient for this type of experiment. By a factorial design, we mean that in each complete trial or replicate of the experiment all possible combinations of the levels of the factors are investigated.  For example, if there are a levels of factor A and b levels of factor B, each replicate contains all ab treatment combinations. When factors are arranged in a factorial design, they are often said to be crossed. The effect of a factor is defined to be the change in response produced by a change in the level of the factor. This is frequently called a main effect because it refers to the primary factors of interest in the experiment. (Montgomery, 2012)</p>
+
+<p>Factorial experiments allow us to analyze the effects of factors simultaneously. The most common are the 2 factor factorials also known as the 2k experiments, where k can take the values (2,3,…).</p>
+
+<h2 id="advantages-of-factorial-experiments-over-one-factor-at-a-time-experiments">Advantages of Factorial Experiments Over One Factor at a Time Experiments</h2>
+
+<ol>
+  <li>They are more efficient in that they provide more information at lower or similar cost as compared to one factor at a time experiments.</li>
+  <li>Allows a researcher to study how the factors interact within themselves.</li>
+</ol>
+
+<h2 id="disadvantages">Disadvantages</h2>
+
+<ol>
+  <li>Some experiments may be cumbersome to compute mathematically especially if they involve numerous factors.</li>
+  <li>Some information may be lost during the design of a factorial experiment. This is a phenomenon known as confounding.</li>
+</ol>
+
+<p>I will not get into the manual derivations of how to solve factorial experiments but, I will however attach some reference where one can get more information about it.</p>
+
+<h2 id="factorial-designs-using-r">Factorial Designs Using R</h2>
+
+<p>To perform these experiments, we will use the <em>DoeBioresearch</em> read bout the package from the link below <a href="https://cran.r-project.org/web/packages/doebioresearch/doebioresearch.pdf">https://cran.r-project.org/web/packages/doebioresearch/doebioresearch.pdf</a> package. 
+Additionally, I have partnered with two friends of mine who are both microbiologists and have allowed me to use their experimental data for this illustration.</p>
+
+<h2 id="example-1">Example 1</h2>
+
+<p>In this example, my friend Joseah Lang’at check out his LinkedIn profile <a href="https://www.linkedin.com/in/joseah-langat-3286a2178/">https://www.linkedin.com/in/joseah-langat-3286a2178/</a> was performing an experiment <em>SENSITIVITY OF *Staphylococcus aureus</em> AND <em>Escherichia coli</em> TO <em>Zingiber officinale</em> AND <em>Allium sativum</em> EXTRACTS*. 
+In simpler terms, the title of the experiment was assessing how sensitive the two bacteria were to extracts of ginger and garlic.</p>
+
+<p>The main objectives of the experiment were; 
+To determine the sensitivity of <em>Staphylococcus aureus</em> and <em>Escherichia coli</em> to <em>Zingiber officinale</em> and <em>Allium sativum</em>.</p>
+
+<p>The data contained the following; 
+Concentration. This represents levels of distilled water. (1,2,3) representing (0%, 50%, 25%) distilled water respectively. 
+Treatments. There 
+Value. This is the zone of inhibition recorded in the experiment. The values
+are in centimeters.</p>
+
+<h3 id="loading-the-data-and-required-packages">Loading the data and required packages</h3>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">doebioresearch</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">readxl</span><span class="p">)</span><span class="w">
+</span><span class="n">sensitivity_data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="s2">"SensitivityData.xlsx"</span><span class="p">,</span><span class="w"> 
+    </span><span class="n">sheet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"saureus"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="some-visualizations">Some Visualizations</h3>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggthemes</span><span class="p">)</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">sensitivity_data</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Treatment</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Value</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Treatment</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_boxplot</span><span class="p">(</span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"circle"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_hue</span><span class="p">(</span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Box Plot for Treatments "</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_tableau</span><span class="p">()</span><span class="o">+</span><span class="w">
+  </span><span class="n">ggthemes</span><span class="o">::</span><span class="n">theme_fivethirtyeight</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bold.italic"</span><span class="p">,</span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/img/posts/Factorials/unnamed-chunk-3-1.png" alt="" /><!-- --></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">sensitivity_data</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Treatment</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Treatment</span><span class="p">,</span><span class="w"> </span><span class="n">weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Value</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_bar</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_brewer</span><span class="p">(</span><span class="n">palette</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Set1"</span><span class="p">,</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Yield"</span><span class="p">,</span><span class="w">
+    </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Total Yields for the Zone of Inhibition"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">ggthemes</span><span class="o">::</span><span class="n">theme_fivethirtyeight</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"top"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">facet_wrap</span><span class="p">(</span><span class="n">vars</span><span class="p">(</span><span class="n">Bacteria</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/img/posts/Factorials/unnamed-chunk-4-1.png" alt="" /><!-- --></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">sensitivity_data</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Bacteria</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Value</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Bacteria</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_boxplot</span><span class="p">(</span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"circle"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_hue</span><span class="p">(</span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Boxplot for the Bacteria"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_tableau</span><span class="p">()</span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bold.italic"</span><span class="p">,</span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/img/posts/Factorials/unnamed-chunk-5-1.png" alt="" /><!-- --></p>
+
+<p>No presence of Outliers from the plots above.</p>
+
+<h3 id="running-a-factorial-experiment">Running a factorial experiment.</h3>
+<p>To analyze the significance of the factors in the experiment, a 2^2 factorial experiment was chosen. This experiment was carried out at 5% level of significance. 
+The Least Significant Difference was used to check on the of the differences between statistically significant groups. The two factors are Bacteria and Treatments. Concentration was taken as the blocking/replication factor.</p>
+
+<h3 id="hypotheses">Hypotheses</h3>
+
+<ol>
+  <li>Treatments (Factor A) 
+Null: Anti-microbial activity between the treatments are equal. 
+Alternative: At least one of the treatments has a different Anti-microbial activity.</li>
+  <li>Bacteria (Factor B) 
+Null: <em>S.aureus</em> and <em>E.coli</em> have similar sensitivity effect on the extracts. 
+Alternative: <em>S.aureus</em> and <em>E.coli</em> do not have similar sensitivity effect on the extracts.</li>
+  <li>Blocks (Concetration of Distilled Water) 
+Null: Blocks have similar effect 
+Alternative: At least one is different</li>
+</ol>
+
+<p><em>Decision Rule</em> 
+If p-value is less than alpha(0.05) we reject the null hypothesis.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">frbd2fact</span><span class="p">(</span><span class="n">sensitivity_data</span><span class="p">[</span><span class="m">3</span><span class="p">],</span><span class="w"> </span><span class="n">sensitivity_data</span><span class="o">$</span><span class="n">Concentration</span><span class="p">,</span><span class="w">
+                  </span><span class="n">sensitivity_data</span><span class="o">$</span><span class="n">Treatment</span><span class="p">,</span><span class="n">sensitivity_data</span><span class="o">$</span><span class="n">Bacteria</span><span class="p">,</span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## $Value
+## $Value[[1]]
+## Analysis of Variance Table
+## 
+## Response: dependent.var
+##                   Df Sum Sq Mean Sq  F value    Pr(&gt;F)    
+## replicationvector  2 0.1408  0.0704   3.0888   0.07741 .  
+## fact.A             3 4.3367  1.4456  63.4082 2.167e-08 ***
+## fact.B             1 4.6817  4.6817 205.3577 9.299e-10 ***
+## fact.A:fact.B      3 1.6950  0.5650  24.7833 7.315e-06 ***
+## Residuals         14 0.3192  0.0228                       
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## $Value[[2]]
+## [1] "R Square 0.971"
+## 
+## $Value[[3]]
+## [1] "SEm of A: 0.062 , SEd of A: 0.087 , SEm of B: 0.044 , SEd of B 0.062 , SEm of AB: 0.087 , SEd of AB: 0.123"
+## 
+## $Value[[4]]
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  model$residuals
+## W = 0.89877, p-value = 0.02027
+## 
+## $Value[[5]]
+## [1] "Normality assumption is violated"
+## 
+## $Value[[6]]
+## [1] "The means of one or more levels of first factor are not same, so go for multiple comparison test"
+## 
+## $Value[[7]]
+## $Value[[7]][[1]]
+##      MSerror Df     Mean       CV  t.value       LSD
+##   0.02279762 14 1.266667 11.92017 2.144787 0.1869684
+## 
+## $Value[[7]][[2]]
+##         dependent.var groups
+## Garlic       1.683333      a
+## Mixed        1.583333      a
+## Ginger       1.200000      b
+## Control      0.600000      c
+## 
+## $Value[[8]]
+## [1] "The means of one or more levels of second factor are not same, so go for multiple comparison test"
+## 
+## $Value[[9]]
+## $Value[[9]][[1]]
+##      MSerror Df     Mean       CV  t.value       LSD
+##   0.02279762 14 1.266667 11.92017 2.144787 0.1322066
+## 
+## $Value[[9]][[2]]
+##         dependent.var groups
+## Saureus      1.708333      a
+## Ecoli        0.825000      b
+## 
+## $Value[[10]]
+## [1] "The means of levels of interaction between two factors are not same, so go for multiple comparison test"
+## 
+## $Value[[11]]
+## $Value[[11]][[1]]
+##      MSerror Df     Mean       CV  t.value       LSD
+##   0.02279762 14 1.266667 11.92017 2.144787 0.2644133
+## 
+## $Value[[11]][[2]]
+##                 dependent.var groups
+## Garlic:Saureus      2.3333333      a
+## Mixed:Saureus       2.2333333      a
+## Ginger:Saureus      1.6666667      b
+## Garlic:Ecoli        1.0333333      c
+## Mixed:Ecoli         0.9333333     cd
+## Ginger:Ecoli        0.7333333     de
+## Control:Ecoli       0.6000000      e
+## Control:Saureus     0.6000000      e
+</code></pre></div></div>
+
+<h3 id="result-interpretation">Result Interpretation</h3>
+
+<ol>
+  <li>ANOVA TABLE
+    <h3 id="are-the-concentration-block-significant">Are the concentration (Block) significant?</h3>
+    <p>The test returned a p-value of (0.07741) for the blocks. This is greater than 0.05. 
+The decision is therefore fail to reject the null hypothesis and conclude that with 95% confidence, the concentration effects of distilled water are statistically insignificant to the experimental yield.</p>
+  </li>
+</ol>
+
+<h3 id="are-the-effects-of-the-extracts-significant">Are the Effects of the Extracts Significant?</h3>
+<p>A p-value of (2.167e-08) was returned by the test. This is less than 0.05. The null hypothesis is rejected and conclude that with 95% confidence, that the effects of the plant extracts differ significantly.</p>
+
+<h3 id="are-the-effects-of-the-bacteria-significant">Are the Effects of the Bacteria Significant?</h3>
+<p>The p-value (9.299e-10) is less than 0.05. We therefore reject the null hypothesis and conclude that with 95% confidence, that the effects of the bacteria differ significantly. <em>Main effects are significant</em></p>
+
+<h3 id="are-the-two-factor-interaction-effects-significant">Are the Two-Factor Interaction Effects Significant?</h3>
+<p>The p-value (9.299e-10) is less than 0.05. We therefore reject the null hypothesis and conclude that with 95% confidence, that the interaction effects are statistically significant.</p>
+
+<p><em>R Square 0.971</em>, indicates that this model explains 97.1% variability. This is a good result.</p>
+
+<ol>
+  <li>Multiple Comparison Tests 
+Having rejected the null hypothesis in for main effects and interactions, the LSD test was used to test and select the effects with the most significance.</li>
+</ol>
+
+<h3 id="treatments">Treatments</h3>
+<p>Of the 4 treatments, no statistical difference exists between Garlic and Mixed. These two offer the highest anti-microbial activity. When compared across the treatments, Garlic and Mixed differed significantly from ginger and control.</p>
+
+<h3 id="bacteria">Bacteria</h3>
+<p><em>S.aureus</em> had the highest sensitivity as compared to <em>E.coli</em> with a mean of 1.708 as compared to 0.825 for <em>E.coli</em>.</p>
+
+<h3 id="interaction-effects">Interaction Effects</h3>
+<p>The interaction <em>Garlic:S.aureus</em> and <em>Mixed:S.aureus</em> offered the highest yield and there was no statistical differences between these interactions.</p>
+
+<p>In chronological order, the interaction effects were as follows;</p>
+<ol>
+  <li>Garlic:Saureus and Mixed:Saureus</li>
+  <li>Ginger:Saureus</li>
+  <li>Garlic:Ecoli</li>
+  <li>Mixed:Ecoli</li>
+  <li>Ginger:Ecoli</li>
+  <li>Control:Ecoli<br />
+7.Control:Saureus</li>
+</ol>
+
+<p>To conclude this experiment, an interaction plot was used to visualize
+the presecence of interaction between the two factors.</p>
+<h3 id="checking-for-interaction-within-the-data">Checking for interaction within the data</h3>
+
+<p>We use the <em>interaction.plot</em> function to check on interaction between
+the two factors; Bacteria and treatment</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">interaction.plot</span><span class="p">(</span><span class="n">x.factor</span><span class="o">=</span><span class="n">sensitivity_data</span><span class="o">$</span><span class="n">Bacteria</span><span class="p">,</span><span class="w">
+                 </span><span class="n">trace.factor</span><span class="o">=</span><span class="n">sensitivity_data</span><span class="o">$</span><span class="n">Treatment</span><span class="p">,</span><span class="w">
+                 </span><span class="n">response</span><span class="o">=</span><span class="n">sensitivity_data</span><span class="o">$</span><span class="n">Value</span><span class="p">,</span><span class="w">
+                 </span><span class="n">type</span><span class="o">=</span><span class="s2">"b"</span><span class="p">,</span><span class="w"> 
+                 </span><span class="n">main</span><span class="o">=</span><span class="s2">"Interaction Between Bacteria and Plant Extracts"</span><span class="p">,</span><span class="w">
+                 </span><span class="n">xlab</span><span class="o">=</span><span class="s2">"Bacteria"</span><span class="p">,</span><span class="w">
+                 </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Zone of Inhibition in cm"</span><span class="p">,</span><span class="w">
+                 </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"green"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+                 </span><span class="n">lwd</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w">
+                 </span><span class="n">trace.label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Extract"</span><span class="p">)</span><span class="w"> 
+</span></code></pre></div></div>
+
+<p><img src="/img/posts/Factorials/unnamed-chunk-8-1.png" alt="" /><!-- --> 
+From the plot, Garlic has the highest antimicrobial activity followed by mixed then ginger and finally control. <em>S.aureus</em> has higher sensitivity as compared to <em>E.coli</em>. However, we can not conclude that there is presence of interaction between the two factors. Additionally, there is an increase in the sensitivity of the bacteria as you move from <em>E.coli</em>
+to <em>S.aureus</em></p>
+
+<h2 id="example-2">Example 2</h2>
+<p>In this example, my friend Gideon check out his LinkedIn page <a href="https://www.linkedin.com/in/steve-gideons-b390761a1/">https://www.linkedin.com/in/steve-gideons-b390761a1/</a> was performing an experiment title <em>Prevalence of Bovine Mastitis and their Anti-microbial Susceptibility Profile in London Ward, Nakuru County</em> 
+The objectives of the research were to determine the prevelence of mastitis, identify the most prevalent bacteria causing mastitis and determine their antimicrobial susceptibility profile.</p>
+
+<p>Bovine Mastitis is an inflammatory response of the udder tissue in mammary gland caused due to physical trauma or microorganism infections. It is considered the most common disease leading to economic loss in dairy industries due to reduced yield and poor quality of milk. (Henriques and Gomes, 2016)</p>
+
+<p>In summary, the research sought to investigate the most dominant bacteria that causes bovine mastitis and which type of mastitis diagnosis is the most prevalent. Finally, the research looked into some common antibiotics to understand which one was effective against what type of bovine mastitis. The study was conducted in London ward and a sample of 15 cows were randomly selected and milk samples drawn from them. Laboratory tests were performed and respective zone of inhibition recorded.</p>
+
+<h3 id="loading-the-data-and-some-required-packages">Loading the Data and some required packages</h3>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">readxl</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">tidyr</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">knitr</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggthemes</span><span class="p">)</span><span class="w">
+</span><span class="n">Mastistis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="s2">"MastitisData.xlsx"</span><span class="p">,</span><span class="w"> 
+    </span><span class="n">sheet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Sheet1"</span><span class="p">,</span><span class="w"> </span><span class="n">col_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"text"</span><span class="p">,</span><span class="w"> 
+        </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> 
+        </span><span class="s2">"numeric"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The data contained the following variables;</p>
+<ol>
+  <li>Specimen_No</li>
+  <li>Breed - Type of cow; Friesian, Jersey or Ayshire</li>
+  <li>Quarters - Cow’s tits. Front Left (FL), Front Right, Back Left, Back Right</li>
+  <li>Isolates - Bacteria identified</li>
+  <li>Diagnosis - Type of mastitis</li>
+  <li>Sensitivity_test - Antibiotic administered</li>
+  <li>Yield - Zone of inhibition recorded in millimeters.</li>
+</ol>
+
+<h3 id="some-exploratory-data-analysis">Some Exploratory Data Analysis</h3>
+
+<p>Zone of Inhibition by Breed</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Breed_Summary</span><span class="o">&lt;-</span><span class="n">Mastistis</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">Breed</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">drop_na</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summarise</span><span class="p">(</span><span class="n">Count</span><span class="o">=</span><span class="n">n</span><span class="p">(),</span><span class="w">
+            </span><span class="n">Average_Zone</span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">Yield</span><span class="p">),</span><span class="w">
+            </span><span class="n">SD</span><span class="o">=</span><span class="n">sd</span><span class="p">(</span><span class="n">Yield</span><span class="p">),</span><span class="w">
+            </span><span class="n">SE</span><span class="o">=</span><span class="n">SD</span><span class="o">/</span><span class="n">Count</span><span class="p">,</span><span class="w">
+            </span><span class="n">LCL</span><span class="o">=</span><span class="nf">round</span><span class="p">(</span><span class="n">Average_Zone</span><span class="o">-</span><span class="p">(</span><span class="m">1.96</span><span class="o">*</span><span class="n">SE</span><span class="p">),</span><span class="m">2</span><span class="p">),</span><span class="w">
+            </span><span class="n">UCL</span><span class="o">=</span><span class="nf">round</span><span class="p">(</span><span class="n">Average_Zone</span><span class="o">+</span><span class="p">(</span><span class="m">1.96</span><span class="o">*</span><span class="n">SE</span><span class="p">),</span><span class="m">2</span><span class="p">),</span><span class="w">
+            </span><span class="n">Zone_Mean_95Pct_CI</span><span class="o">=</span><span class="n">paste</span><span class="p">(</span><span class="s2">"("</span><span class="p">,</span><span class="w"> </span><span class="n">LCL</span><span class="w"> </span><span class="p">,</span><span class="s2">" , "</span><span class="p">,</span><span class="w"> </span><span class="n">UCL</span><span class="p">,</span><span class="w"> </span><span class="s2">")"</span><span class="w"> </span><span class="p">))</span><span class="w">
+
+</span><span class="n">kable</span><span class="p">(</span><span class="n">Breed_Summary</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+        </span><span class="n">select</span><span class="p">(</span><span class="o">-</span><span class="nf">c</span><span class="p">(</span><span class="n">LCL</span><span class="p">,</span><span class="n">UCL</span><span class="p">,</span><span class="w"> </span><span class="n">SE</span><span class="p">)))</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Breed</th>
+      <th style="text-align: right">Count</th>
+      <th style="text-align: right">Average_Zone</th>
+      <th style="text-align: right">SD</th>
+      <th style="text-align: left">Zone_Mean_95Pct_CI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Ayshire</td>
+      <td style="text-align: right">80</td>
+      <td style="text-align: right">19.65000</td>
+      <td style="text-align: right">5.388924</td>
+      <td style="text-align: left">( 19.52 , 19.78 )</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Fresian</td>
+      <td style="text-align: right">168</td>
+      <td style="text-align: right">19.10119</td>
+      <td style="text-align: right">5.439531</td>
+      <td style="text-align: left">( 19.04 , 19.16 )</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Jersey</td>
+      <td style="text-align: right">56</td>
+      <td style="text-align: right">19.73214</td>
+      <td style="text-align: right">4.669012</td>
+      <td style="text-align: left">( 19.57 , 19.9 )</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="aggregation-by-isolates">Aggregation by Isolates</h3>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Isolate</span><span class="o">&lt;-</span><span class="n">Mastistis</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">Isolates</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summarise</span><span class="p">(</span><span class="n">Count</span><span class="o">=</span><span class="n">n</span><span class="p">())</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">Pct</span><span class="o">=</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Count</span><span class="o">/</span><span class="nf">sum</span><span class="p">(</span><span class="n">Count</span><span class="p">),</span><span class="m">2</span><span class="p">)</span><span class="o">*</span><span class="m">100</span><span class="p">),</span><span class="w">
+         </span><span class="n">Isolate_int</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Ent"</span><span class="p">,</span><span class="s2">"E.coli"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Klebsiella"</span><span class="p">,</span><span class="w"> </span><span class="s2">"No_Isolate"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Pseudomonas"</span><span class="p">,</span><span class="w">
+                       </span><span class="s2">"Staphylococcus"</span><span class="p">),</span><span class="w">
+         </span><span class="n">Rate</span><span class="o">=</span><span class="n">paste0</span><span class="p">(</span><span class="n">Pct</span><span class="p">,</span><span class="w"> </span><span class="s2">"%"</span><span class="p">),</span><span class="w">
+         </span><span class="n">cumulative_ratio</span><span class="o">=</span><span class="nf">cumsum</span><span class="p">(</span><span class="n">Pct</span><span class="p">),</span><span class="w">
+         </span><span class="n">ration_min</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">cumulative_ratio</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="m">-1</span><span class="p">)),</span><span class="w">
+         </span><span class="n">labelPosition</span><span class="o">=</span><span class="p">(</span><span class="n">cumulative_ratio</span><span class="o">+</span><span class="n">ration_min</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="p">,</span><span class="w">
+         </span><span class="n">label</span><span class="o">=</span><span class="n">paste0</span><span class="p">(</span><span class="n">Isolate_int</span><span class="p">,</span><span class="w"> </span><span class="s2">":"</span><span class="p">,</span><span class="w"> </span><span class="n">Rate</span><span class="p">))</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">Isolate</span><span class="p">,</span><span class="n">aes</span><span class="p">(</span><span class="n">ymax</span><span class="o">=</span><span class="n">cumulative_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">ymin</span><span class="o">=</span><span class="n">ration_min</span><span class="p">,</span><span class="w"> </span><span class="n">xmax</span><span class="o">=</span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="n">xmin</span><span class="o">=</span><span class="m">3</span><span class="p">,</span><span class="w"> 
+                   </span><span class="n">fill</span><span class="o">=</span><span class="n">Isolate_int</span><span class="p">))</span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_rect</span><span class="p">()</span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">Ent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> 
+                               </span><span class="n">E.coli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"orange"</span><span class="p">,</span><span class="w">
+                               </span><span class="n">Klebsiella</span><span class="o">=</span><span class="w"> </span><span class="s2">"green"</span><span class="p">,</span><span class="w">
+                               </span><span class="n">No_Isolate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">,</span><span class="w">
+                               </span><span class="n">Pseudomona</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"yellow"</span><span class="p">,</span><span class="w">
+                               </span><span class="n">Staphylococcus</span><span class="o">=</span><span class="w"> </span><span class="s2">"purple"</span><span class="p">))</span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_label</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="m">2.6</span><span class="p">,</span><span class="n">aes</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">labelPosition</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">),</span><span class="n">size</span><span class="o">=</span><span class="m">6</span><span class="p">)</span><span class="o">+</span><span class="w">
+  </span><span class="n">coord_polar</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="s2">"y"</span><span class="p">)</span><span class="o">+</span><span class="w">
+  </span><span class="n">xlim</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="m">-1</span><span class="p">,</span><span class="m">4</span><span class="p">))</span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"ISOLATES"</span><span class="p">,</span><span class="w">
+       </span><span class="n">subtitle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="s2">"Enterecoccus, E.coli, Klebsiella, No_Isolate, Pseudomonas,
+                       Staphylococcus"</span><span class="p">))</span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bold.italic"</span><span class="p">,</span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="o">+</span><span class="w">
+  </span><span class="n">theme_void</span><span class="p">()</span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"none"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p><img src="/img/posts/Factorials/unnamed-chunk-11-1.png" alt="" /><!-- -->
+33% of the samples showed no isolate. This is a warying statistic since it implies that the prevalence rate of Bovine mastitis is at 67% which is relatively high.</p>
+
+<h3 id="dropping-values-with-no-isolates">Dropping values with No isolates</h3>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">no_isolate</span><span class="o">&lt;-</span><span class="n">Mastistis</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">Isolates</span><span class="o">==</span><span class="s2">"No isolate"</span><span class="p">)</span><span class="w">
+</span><span class="n">Mastistis_clean</span><span class="o">&lt;-</span><span class="n">Mastistis</span><span class="p">[</span><span class="o">!</span><span class="n">Mastistis</span><span class="o">$</span><span class="n">Isolates</span><span class="o">==</span><span class="s2">"No isolate"</span><span class="p">,]</span><span class="w">
+
+</span><span class="n">Mastistis_clean</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">Mastistis_clean</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">Breed</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">Breed</span><span class="p">),</span><span class="w">
+         </span><span class="n">Quarters</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">Quarters</span><span class="p">),</span><span class="w">
+         </span><span class="n">Isolates</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">Isolates</span><span class="p">),</span><span class="w">
+         </span><span class="n">Diagnosis</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">Diagnosis</span><span class="p">),</span><span class="w">
+         </span><span class="n">Yield</span><span class="o">=</span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">Yield</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<h3 id="cummulative-yields-for-the-zone-of-inhibitions">Cummulative Yields for the Zone of Inhibitions</h3>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">Mastistis_clean</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Breed</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Yield</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Isolates</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_boxplot</span><span class="p">(</span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"circle"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_hue</span><span class="p">(</span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Cummulative Yields for the Zone of Inhibitions"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bold.italic"</span><span class="p">,</span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">facet_wrap</span><span class="p">(</span><span class="n">vars</span><span class="p">(</span><span class="n">Diagnosis</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/img/posts/Factorials/unnamed-chunk-13-1.png" alt="" /><!-- --></p>
+
+<h3 id="analysis-of-diagnosis-and-the-anti-microbial-agents">Analysis of Diagnosis and the Anti-microbial Agents</h3>
+
+<p>To test for the significance in the mean differences, 3k factorial
+experiment was chosen.The Least Significant Difference was used to check
+on the of the differences between statistically significant groups. The
+three factors are Diagnosis, Sensitivity and Breed. Quarters was taken
+as the blocking/replication factor.</p>
+
+<h3 id="hypotheses-1">Hypotheses</h3>
+
+<ol>
+  <li>
+    <p>Diagnosis (Factor A) 
+Null: The diagnosis are similar in effect.
+Alternative: At least one of the diagnosis has a different effect.</p>
+  </li>
+  <li>
+    <p>Sensitivity (Factor B) 
+These are the drugs subjected to the pathogens associated with mastitis. 
+Null: The Sensitivity have similar effects. 
+Alternative: At least one of the Sensitivity is different.</p>
+  </li>
+  <li>
+    <p>Breed (Factor C) 
+Null: The breeds have similar effects. 
+Alternative: At least one of the breeds is different.</p>
+  </li>
+  <li>
+    <p>Blocks 
+Null: Blocks have similar effect. 
+Alternative: At least one is different.</p>
+  </li>
+  <li>
+    <p>Interaction effects 
+Null: Two and three factor interactions have similar effect.
+Alternative: At least one the interaction sets is different.</p>
+  </li>
+</ol>
+
+<p><em>Decision rule</em> 
+p-value criteria. If p-value is less than alpha (0.05), the null hypothesis is rejected.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">doebioresearch</span><span class="p">)</span><span class="w">
+</span><span class="n">frbd3fact</span><span class="p">(</span><span class="n">Mastistis_clean</span><span class="p">[</span><span class="m">7</span><span class="p">],</span><span class="w"> </span><span class="n">Mastistis_clean</span><span class="o">$</span><span class="n">Quarters</span><span class="p">,</span><span class="w"> </span><span class="n">Mastistis_clean</span><span class="o">$</span><span class="n">Diagnosis</span><span class="p">,</span><span class="w">
+          </span><span class="n">Mastistis_clean</span><span class="o">$</span><span class="n">Sensitivity_test</span><span class="p">,</span><span class="w"> </span><span class="n">Mastistis_clean</span><span class="o">$</span><span class="n">Breed</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## $Yield
+## $Yield[[1]]
+## Analysis of Variance Table
+## 
+## Response: dependent.var
+##                       Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## replicationvector      9  179.2  19.909  0.9633  0.471279    
+## fact.A                 2  220.9 110.441  5.3434  0.005388 ** 
+## fact.B                 7 1405.0 200.720  9.7113 1.366e-10 ***
+## fact.C                 2    1.5   0.728  0.0352  0.965412    
+## fact.A:fact.B         14  589.4  42.098  2.0368  0.016189 *  
+## fact.A:fact.C          3   41.6  13.854  0.6703  0.571066    
+## fact.B:fact.C         14  729.8  52.129  2.5221  0.002284 ** 
+## fact.A:fact.B:fact.C  21  518.4  24.688  1.1945  0.256982    
+## Residuals            231 4774.5  20.669                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## $Yield[[2]]
+## [1] "R Square 0.436"
+## 
+## $Yield[[3]]
+## [1] "SEm of A: 0.293 , SEd of A: 0.415 , SEm of B: 0.479 , SEd of B 0.678 , SEm of C: 0.293 , SEd of C: 0.415 , SEm of AB: 0.83 , SEd of AB: 1.174 , SEm of AC: 0.508 , SEd of AC: 0.719 , SEm of BC: 0.83 , SEd of BC: 1.174 , SEm of ABC: 1.438 , SEd of ABC: 2.033"
+## 
+## $Yield[[4]]
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  model$residuals
+## W = 0.98536, p-value = 0.003476
+## 
+## 
+## $Yield[[5]]
+## [1] "Normality assumption is violated"
+## 
+## $Yield[[6]]
+## [1] "The means of one or more levels of factor A are not same, so go for multiple comparison test"
+## 
+## $Yield[[7]]
+## $Yield[[7]][[1]]
+##    MSerror  Df     Mean       CV
+##   20.66862 231 19.36184 23.48059
+## 
+## $Yield[[7]][[2]]
+##                         dependent.var groups
+## Coliform mastitis            20.05882      a
+## Staphylococcal mastitis      18.92647      b
+## Pseudomonas mastitis         18.25000      b
+## 
+## 
+## $Yield[[8]]
+## [1] "The means of one or more levels of factor B are not same, so go for multiple comparison test"
+## 
+## $Yield[[9]]
+## $Yield[[9]][[1]]
+##    MSerror  Df     Mean       CV  t.value      LSD
+##   20.66862 231 19.36184 23.48059 1.970287 2.054983
+## 
+## $Yield[[9]][[2]]
+##               dependent.var groups
+## Gentamycin         23.31579      a
+## Neomycin           20.68421      b
+## Cefalexin          20.57895      b
+## Streptomycin       19.60526     bc
+## Tetracycline       18.73684     bc
+## Kanamycin          18.71053     bc
+## Penicillin         17.71053      c
+## Cotrimoxazole      15.55263      d
+## 
+## 
+## $Yield[[10]]
+## [1] "All the factor C level means are same so dont go for any multiple comparison test"
+## 
+## $Yield[[11]]
+## $Yield[[11]][[1]]
+##    MSerror  Df     Mean       CV
+##   20.66862 231 19.36184 23.48059
+## 
+## $Yield[[11]][[2]]
+##         dependent.var groups
+## Jersey       19.73214      a
+## Ayshire      19.65000      a
+## Fresian      19.10119      a
+## 
+## $Yield[[12]]
+## [1] "The means of levels of interaction between A and B factors are not same, so go for multiple comparison test"
+## 
+## $Yield[[13]]
+## $Yield[[13]][[1]]
+##    MSerror  Df     Mean       CV
+##   20.66862 231 19.36184 23.48059
+## 
+## $Yield[[13]][[2]]
+##                                       dependent.var groups
+## Coliform mastitis:Gentamycin               24.05882      a
+## Staphylococcal mastitis:Gentamycin         23.70588     ab
+## Coliform mastitis:Tetracycline             21.64706    abc
+## Coliform mastitis:Cefalexin                21.58824    abc
+## Pseudomonas mastitis:Neomycin              21.50000   abcd
+## Staphylococcal mastitis:Neomycin           20.76471    bcd
+## Pseudomonas mastitis:Kanamycin             20.75000   bcde
+## Coliform mastitis:Streptomycin             20.47059    cde
+## Staphylococcal mastitis:Kanamycin          20.47059    cde
+## Coliform mastitis:Neomycin                 20.41176    cde
+## Staphylococcal mastitis:Cefalexin          19.88235    cde
+## Pseudomonas mastitis:Streptomycin          19.75000    cde
+## Pseudomonas mastitis:Cefalexin             19.25000   cdef
+## Coliform mastitis:Penicillin               18.70588   cdef
+## Staphylococcal mastitis:Streptomycin       18.70588   cdef
+## Pseudomonas mastitis:Gentamycin            18.50000  cdefg
+## Pseudomonas mastitis:Tetracycline          17.75000  cdefg
+## Coliform mastitis:Cotrimoxazole            17.11765   defg
+## Staphylococcal mastitis:Penicillin         17.05882   defg
+## Coliform mastitis:Kanamycin                16.47059    efg
+## Pseudomonas mastitis:Penicillin            16.25000    efg
+## Staphylococcal mastitis:Tetracycline       16.05882    efg
+## Staphylococcal mastitis:Cotrimoxazole      14.76471     fg
+## Pseudomonas mastitis:Cotrimoxazole         12.25000      g
+## 
+## 
+## $Yield[[14]]
+## [1] "The means of levels of interaction between B and C factors are not same, so go for multiple comparison test"
+## 
+## $Yield[[15]]
+## $Yield[[15]][[1]]
+##    MSerror  Df     Mean       CV
+##   20.66862 231 19.36184 23.48059
+## 
+## $Yield[[15]][[2]]
+##                       dependent.var groups
+## Tetracycline:Jersey        26.14286      a
+## Gentamycin:Ayshire         24.80000     ab
+## Gentamycin:Fresian         23.23810    abc
+## Cefalexin:Ayshire          21.50000    bcd
+## Gentamycin:Jersey          21.42857    bcd
+## Neomycin:Jersey            21.28571    bcd
+## Streptomycin:Fresian       21.04762     cd
+## Neomycin:Fresian           20.90476     cd
+## Cefalexin:Fresian          20.85714     cd
+## Kanamycin:Ayshire          20.30000     cd
+## Neomycin:Ayshire           19.80000    cde
+## Penicillin:Jersey          19.57143   cdef
+## Kanamycin:Fresian          19.00000    def
+## Tetracycline:Ayshire       18.90000    def
+## Cefalexin:Jersey           18.42857   defg
+## Streptomycin:Ayshire       18.30000   defg
+## Cotrimoxazole:Jersey       18.28571   defg
+## Penicillin:Ayshire         18.20000   defg
+## Streptomycin:Jersey        17.14286   defg
+## Penicillin:Fresian         16.85714    efg
+## Tetracycline:Fresian       16.19048     fg
+## Kanamycin:Jersey           15.57143     fg
+## Cotrimoxazole:Ayshire      15.40000     fg
+## Cotrimoxazole:Fresian      14.71429      g
+## 
+## 
+## $Yield[[16]]
+## [1] "The means of levels of interaction between A and C factors are same so dont go for any multiple comparison test"
+## 
+## $Yield[[17]]
+## $Yield[[17]][[1]]
+##    MSerror  Df     Mean       CV
+##   20.66862 231 19.36184 23.48059
+## 
+## $Yield[[17]][[2]]
+##                                 dependent.var groups
+## Coliform mastitis:Fresian            20.30556      a
+## Staphylococcal mastitis:Ayshire      20.01786      a
+## Coliform mastitis:Jersey             19.83333      a
+## Coliform mastitis:Ayshire            19.62500     ab
+## Pseudomonas mastitis:Jersey          19.12500     ab
+## Pseudomonas mastitis:Fresian         18.37500     ab
+## Staphylococcal mastitis:Fresian      18.16250      b
+## Pseudomonas mastitis:Ayshire         17.12500      b
+## 
+## 
+## $Yield[[18]]
+## [1] "The means of levels of interaction between all the three factors ABC are same so dont go for any multiple comparison test"
+## 
+## $Yield[[19]]
+## $Yield[[19]][[1]]
+##    MSerror  Df     Mean       CV
+##   20.66862 231 19.36184 23.48059
+## 
+## $Yield[[19]][[2]]
+##                                               dependent.var groups
+## Pseudomonas mastitis:Neomycin:Fresian              27.00000      a
+## Pseudomonas mastitis:Tetracycline:Jersey           27.00000     ab
+## Coliform mastitis:Tetracycline:Jersey              26.00000     ab
+## Staphylococcal mastitis:Gentamycin:Ayshire         25.57143     ab
+## Coliform mastitis:Gentamycin:Fresian               25.44444     ab
+## Coliform mastitis:Cefalexin:Ayshire                25.00000     ab
+## Coliform mastitis:Gentamycin:Ayshire               24.00000    abc
+## Pseudomonas mastitis:Kanamycin:Ayshire             23.00000   abcd
+## Coliform mastitis:Cefalexin:Fresian                22.77778   abcd
+## Coliform mastitis:Streptomycin:Fresian             22.66667   abcd
+## Coliform mastitis:Penicillin:Ayshire               22.50000   abcd
+## Staphylococcal mastitis:Gentamycin:Fresian         22.40000   abcd
+## Coliform mastitis:Gentamycin:Jersey                22.00000   abcd
+## Pseudomonas mastitis:Penicillin:Jersey             22.00000  abcde
+## Coliform mastitis:Neomycin:Jersey                  21.83333  abcde
+## Pseudomonas mastitis:Cefalexin:Fresian             21.50000  abcde
+## Pseudomonas mastitis:Streptomycin:Fresian          21.50000  abcde
+## Staphylococcal mastitis:Cefalexin:Ayshire          21.14286  abcde
+## Pseudomonas mastitis:Gentamycin:Ayshire            21.00000 abcdef
+## Staphylococcal mastitis:Neomycin:Fresian           21.00000 abcdef
+## Staphylococcal mastitis:Tetracycline:Ayshire       21.00000 abcdef
+## Staphylococcal mastitis:Kanamycin:Ayshire          20.57143 abcdef
+## Coliform mastitis:Neomycin:Ayshire                 20.50000 abcdef
+## Coliform mastitis:Streptomycin:Ayshire             20.50000 abcdef
+## Coliform mastitis:Tetracycline:Fresian             20.44444 abcdef
+## Staphylococcal mastitis:Neomycin:Ayshire           20.42857 abcdef
+## Staphylococcal mastitis:Kanamycin:Fresian          20.40000 abcdef
+## Pseudomonas mastitis:Kanamycin:Fresian             20.00000 abcdef
+## Pseudomonas mastitis:Kanamycin:Jersey              20.00000 abcdef
+## Staphylococcal mastitis:Streptomycin:Fresian       19.50000  bcdef
+## Coliform mastitis:Neomycin:Fresian                 19.44444  bcdef
+## Coliform mastitis:Penicillin:Jersey                19.16667  bcdef
+## Coliform mastitis:Cotrimoxazole:Jersey             19.00000  bcdef
+## Pseudomonas mastitis:Streptomycin:Ayshire          19.00000  bcdef
+## Staphylococcal mastitis:Cefalexin:Fresian          19.00000  bcdef
+## Coliform mastitis:Cefalexin:Jersey                 18.66667  bcdef
+## Coliform mastitis:Kanamycin:Ayshire                18.00000  bcdef
+## Pseudomonas mastitis:Gentamycin:Jersey             18.00000  bcdef
+## Pseudomonas mastitis:Neomycin:Jersey               18.00000  bcdef
+## Staphylococcal mastitis:Streptomycin:Ayshire       17.57143  bcdef
+## Coliform mastitis:Penicillin:Fresian               17.55556   cdef
+## Pseudomonas mastitis:Gentamycin:Fresian            17.50000   cdef
+## Staphylococcal mastitis:Penicillin:Ayshire         17.42857   cdef
+## Coliform mastitis:Kanamycin:Fresian                17.22222   cdef
+## Coliform mastitis:Streptomycin:Jersey              17.16667   cdef
+## Pseudomonas mastitis:Cefalexin:Ayshire             17.00000   cdef
+## Pseudomonas mastitis:Cefalexin:Jersey              17.00000   cdef
+## Pseudomonas mastitis:Streptomycin:Jersey           17.00000   cdef
+## Coliform mastitis:Cotrimoxazole:Fresian            16.88889    def
+## Staphylococcal mastitis:Penicillin:Fresian         16.80000    def
+## Staphylococcal mastitis:Cotrimoxazole:Ayshire      16.42857    def
+## Pseudomonas mastitis:Penicillin:Ayshire            15.00000    def
+## Pseudomonas mastitis:Tetracycline:Fresian          15.00000    def
+## Coliform mastitis:Kanamycin:Jersey                 14.83333    def
+## Coliform mastitis:Tetracycline:Ayshire             14.00000    def
+## Pseudomonas mastitis:Cotrimoxazole:Ayshire         14.00000    def
+## Pseudomonas mastitis:Cotrimoxazole:Jersey          14.00000    def
+## Pseudomonas mastitis:Neomycin:Ayshire              14.00000    def
+## Pseudomonas mastitis:Penicillin:Fresian            14.00000    def
+## Pseudomonas mastitis:Tetracycline:Ayshire          14.00000    def
+## Staphylococcal mastitis:Cotrimoxazole:Fresian      13.60000     ef
+## Staphylococcal mastitis:Tetracycline:Fresian       12.60000      f
+## Coliform mastitis:Cotrimoxazole:Ayshire            12.50000      f
+## Pseudomonas mastitis:Cotrimoxazole:Fresian         10.50000      f
+</code></pre></div></div>
+
+<h3 id="interpretation-of-the-anova-results">Interpretation of the ANOVA Results</h3>
+<h3 id="main-effects">Main Effects</h3>
+
+<ol>
+  <li>
+    <p>Blocks 
+The test reported a p-value of (0.471279) for the Quarters. This is greater than alpha (0.05). 
+<em>Decision</em> 
+Fail to reject the null hypothesis. 
+<em>Conclusion</em> 
+With 95% confidence, there exists sufficient statistical evidence to support the claim that the effects of the quarters are similar.</p>
+  </li>
+  <li>
+    <p>Factor A - Diagnosis 
+The test reported a p-value of (0.005388) for the diagnosis. This is less than alpha (0.05). 
+<em>Decision</em> 
+Reject the null hypothesis. 
+<em>Conclusion</em> 
+With 95% confidence, there exists sufficient statistical evidence to deny the claim that the effects of the diagnosis are similar. The post hoc analyses showed that Coliform  mastists had the highest effect with a mean prevalence of (20.05882). No statistical difference was found at 5% significance level between Staphylococcal mastitis and Pseudomonas mastitis.</p>
+  </li>
+  <li>
+    <p>Factor B - Sensitivity 
+The test reported a p-value of (1.366e-10) for the Sensitivity. This is less than alpha (0.05). 
+<em>Decision</em>
+Reject the null hypothesis. 
+<em>Conclusion</em> 
+With 95% confidence, there exists sufficient statistical evidence to deny the claim that the effects of the sensitivity are similar. 
+The post hoc analyses showed that Gentamycin had the highest effect with a mean anti-microbial susceptibility of (23.31579). No statistical difference was found at 5% significance level between Neomycin and Cefalexin. Streptomycin, Tetracycline and Kanamycin had no statistical difference between them. Cotrimoxazole had the lowest anti-microbial susceptibility profile with mean (15.55263)</p>
+  </li>
+  <li>
+    <p>Factor C - Breed 
+The test reported a p-value of (0.965412) for the breed. This is greater than alpha (0.05). 
+<em>Decision</em> 
+Fail to reject the null hypothesis. 
+<em>Conclusion</em> 
+With 95% confidence, there exists sufficient statistical evidence to support the claim that the effects of the breed are similar. This implies that the dignosis was not dependent on the breed.</p>
+  </li>
+</ol>
+
+<h3 id="interaction-effect">Interaction Effect</h3>
+
+<ol>
+  <li>
+    <p>fact.A:fact.B 
+The two factor interaction for the diagnosis and sensitivity reported a p-value of (0.016189). This is less than alpha (0.05). 
+<em>Decision</em> 
+Reject the null hypothesis. 
+<em>Conclusion</em>
+With 95% statistical confidence, there exists sufficient evidence to reject the claim that the interaction between diagnosis and sensitivity has similar effect. 
+Post hoc LSD test reported Coliform mastitis:Gentamycin having the highest effect with mean (24.05882) implying that Coliform is highly susceptible to Gentamycin. No statistical difference was obtained between Coliform mastitis:Tetracycline and Coliform mastitis:Cefalexin. Pseudomonas mastitis:Cotrimoxazole offered the lowest effect with mean (12.25000).</p>
+  </li>
+  <li>
+    <p>fact.A:fact.C 
+The two factor interaction for the diagnosis and breed reported a p-value of (0.571066). This is greater than alpha (0.05).
+<em>Decision</em> 
+Fail to reject the null hypothesis. 
+<em>Conclusion</em> 
+With 95% statistical confidence, there exist sufficient statistical evidence to support the claim that the two factor interaction of diagnosis and breed have similar effects across all sets of combinations.</p>
+  </li>
+  <li>
+    <p>fact.B:fact.C 
+The two factor interaction for the sensitivity and breed reported a p-value of (0.002284). This is less than alpha (0.05). 
+<em>Decision</em> 
+Reject the null hypothesis. 
+<em>Conclusion</em> 
+With 95% statistical confidence, there exists sufficient statistical evidence to reject the claim that the two factor interaction of sensitivity and breed have similar effects across all sets of combinations. 
+Post hoc analyses showed that Tetracycline:Jersey exhibited the highest effect with mean (26.14286) while Cotrimoxazole:Fresian exhibited the lowest effect with mean (14.71429)</p>
+  </li>
+  <li>
+    <p>fact.A:fact.B:fact.C 
+The three factor interaction reported a p-value of (0.256982). This greater than alpha (0.05). 
+<em>Decision</em> 
+Fail to reject the null hypothesis. 
+<em>Conclusion</em> 
+With 95% statistical confidence, there exists sufficient statistical evidence to support the claim that the three factor interaction of diagnosis, sensitivity and breed have similar effects across all sets of combinations.</p>
+  </li>
+</ol>
+
+<h3 id="interaction-plot">Interaction plot</h3>
+<p>An interaction plot was generated to describe interaction between the two main factors; diagnosis and sensitivity.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">interaction.plot</span><span class="p">(</span><span class="n">x.factor</span><span class="o">=</span><span class="w"> </span><span class="n">Mastistis_clean</span><span class="o">$</span><span class="n">Diagnosis</span><span class="p">,</span><span class="w">
+                 </span><span class="n">trace.factor</span><span class="o">=</span><span class="n">Mastistis_clean</span><span class="o">$</span><span class="n">Sensitivity_test</span><span class="p">,</span><span class="w">
+                 </span><span class="n">response</span><span class="o">=</span><span class="w"> </span><span class="n">Mastistis_clean</span><span class="o">$</span><span class="n">Yield</span><span class="p">,</span><span class="w">
+                 </span><span class="n">type</span><span class="o">=</span><span class="s2">"b"</span><span class="p">,</span><span class="w"> 
+                 </span><span class="n">main</span><span class="o">=</span><span class="s2">"Interaction Between Diagnosis and Sensitivity Test"</span><span class="p">,</span><span class="w">
+                 </span><span class="n">xlab</span><span class="o">=</span><span class="s2">"Diagnosis"</span><span class="p">,</span><span class="w">
+                 </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Zone of Inhibition in mm"</span><span class="p">,</span><span class="w">
+                 </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"green"</span><span class="p">,</span><span class="w"> </span><span class="s2">"violet"</span><span class="p">,</span><span class="w"> </span><span class="s2">"gold"</span><span class="p">,</span><span class="w"> </span><span class="s2">"brown"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">,</span><span class="w"> </span><span class="s2">"orange"</span><span class="p">),</span><span class="w">
+                 </span><span class="n">lwd</span><span class="o">=</span><span class="m">3</span><span class="p">,</span><span class="w">
+                 </span><span class="n">trace.label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Sensitivity Test"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="fexp_files/figure-gfm/unnamed-chunk-15-1.png" alt="" /><!-- --></p>
+
+<h3 id="interpretation">Interpretation</h3>
+
+<p>Gentamycin had the highest effects of all the sensitivity tests.
+Cotrimoxazole had the lowest effect. This could be attributed to high
+resistance of the pathogens to this anti-microbial agent.</p>
+
+<p>There was an interaction of anti-microbial agents at different zones of
+inhibition. Cotrimoxazole and Kanamycin interacted at zone 17.
+Penicillin interacted with Kanamycin at zone 18 and Tetracycline at zone</p>
+<ol>
+  <li>Tetracyline interacted with Penicillin at zone 18, Kanamycin at zone
+19, Streptomycin at zone 20. Neomycin at zone 21 and Cefalexin at zone</li>
+  <li>Gentamycin interacted with Neomycin at 21, Cefalexin at 21,
+Kanamycin at 20.</li>
+</ol>
+
+<p>Moving across the diagnosis the study found the following; Gentamycin
+had highest effect on Coliform mastitis and Staphylococcal mastitis.
+There was a drop in the trend in Pseudomonas Mastitis indicating some of
+resistance. There was a general negative trend moving from Coliform
+mastitis to Pseudomonas Mastitis and a positive trend moving towards
+Staphylococcal mastitis for the sensitivity tests; Gentamycin,
+Cotrimoxazole, Penicillin and Cefalexin Tetracycline and Streptomycin
+exhibited a negative trend moving across Coliform mastitis and
+Staphylococcal mastitis. Kanamycin and Neomycin had a positive trend
+moving from Coliform mastitis to Pseudomonas mastitis. The trend was
+however relatively stable moving from Pseudomonas Mastitis to
+Staphylococcal mastitis</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>The factorial experiments are useful in that they allow us to analyze
+the effects of different factors simultaneously. The doebioresearch
+package contains numerous functions on how to analyze design of
+experiments data in biological research. Interaction plots visualize the
+interaction between to main factors. However, some may not clearly
+visualize the interaction. This does not mean that there are no
+interactions in the data.</p>
+
+<h1 id="references">References</h1>
+
+<p>Montgomery, D. C. (2012). Design and analysis of experiments. New York:
+John Wiley. Gomes F, Henriques M. Control of bovine mastitis: old and
+recent therapeutic approaches. Curr Microbiol. 2016;72:377–82. doi:
+10.1007/s00284-015-0958-8. [PubMed]
+(/<a href="https://pubmed.ncbi.nlm.nih.gov/26687332/">https://pubmed.ncbi.nlm.nih.gov/26687332/</a>) Agricultural Statistics.
+Factorial RBD Analysis in 1 line along with LSD test in R [YouTube
+Video] (/<a href="https://youtu.be/8D2AFA3Dt8U">https://youtu.be/8D2AFA3Dt8U</a>)</p>
+:ET
