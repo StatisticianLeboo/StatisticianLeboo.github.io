@@ -122,4 +122,4 @@ The figure below is a word cloud illustrating some of the challenges the student
 
 Read the detailed report from the link below.
 
-[2021 INDUSTRIAL ATTACTHMENT REPORT](/img/posts/IA Survey/2021 IA REPORT.pdf)
+[2021 INDUSTRIAL ATTACTHMENT REPORT](/img/posts/2021 IA REPORT.pdf)
