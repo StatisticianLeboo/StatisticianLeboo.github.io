@@ -419,7 +419,7 @@ tab_model(model3)
 *ever birth* This variable recorded whether a woman had given birth before. A woman who had given birth was 9.28 times more likely to use a family planning method. Probable reasons could be; 
 1. May be the pregnancy was accidental and was the woman was much more keen to avoid another. 
 2. The economic conditions were not suitable for a woman to raise another child. 
-3. Thew woman may have been satisfied with the current number of children she has and was not planning of having others in the near future.
+3. The woman may have been satisfied with the current number of children she has and was not planning of having others in the near future.
 
 *IsReligious* This variable was a dummy variable generated from the religion type of the respondents. Religious respondents were 0.73 times more likely to use a family planning method. This could be attributed to the fact that religious leader are among the modern day propagators of family planning and even allow education of family planning in their religious institutions.
 
