@@ -6,11 +6,11 @@ baseurl:            ""
 url:                "https://StatisticianLeboo.github.io"
 
 # Social Profiles
-twitter_username:   
-github_username:    
-facebook_username:  
-instagram_username:  
-linkedin_username:
+twitter_username:  Statistician Leboo 
+github_username:    Ian Leboo
+facebook_username:  Ian Leboo
+instagram_username:  Ian Leboo
+linkedin_username: Ian Leboo
 
 # Add your google-analytics ID here to activate google analytics
 google_analytics:   UA-XXXXXXXXX-X # out your google-analytics code
