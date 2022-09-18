@@ -122,4 +122,4 @@ The figure below is a word cloud illustrating some of the challenges the student
 
 Read the detailed report from the link below.
 
-[2021 INDUSTRIAL ATTACTHMENT REPORT]{{https://drive.google.com/file/d/1Yo3YBbA2_hYLvcJiZ1OFEpXYLX4_ve2w/view?usp=sharing}
+[2021 INDUSTRIAL ATTACTHMENT REPORT](https://drive.google.com/file/d/167p50-WwRWKxYQSZgU5bL_yynqmRDwUC/view?usp=sharing)
