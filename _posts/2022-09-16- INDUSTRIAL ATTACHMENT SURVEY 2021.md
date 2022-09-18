@@ -122,4 +122,4 @@ The figure below is a word cloud illustrating some of the challenges the student
 
 Read the detailed report from the link below.
 
-2021 INDUSTRIAL ATTACTHMENT REPORT{{https://github.com/StatisticianLeboo/Projects/blob/main/Ian%20Kibet%20Leboo%20CV.pdf}}
+[2021 INDUSTRIAL ATTACTHMENT REPORT]{{https://drive.google.com/file/d/1Yo3YBbA2_hYLvcJiZ1OFEpXYLX4_ve2w/view?usp=sharing}
