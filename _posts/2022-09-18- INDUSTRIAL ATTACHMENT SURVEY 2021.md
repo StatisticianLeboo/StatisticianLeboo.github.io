@@ -121,4 +121,4 @@ The figure below is a word cloud illustrating some of the challenges the student
 
 Read the detailed report from the link below.
 
-[2021 INDUSTRIAL ATTACHMENT REPORT]{{/site.statisticianleboo.github.io}}/download/2021 IA REPORT.pdf
+[2021 INDUSTRIAL ATTACHMENT REPORT]{{/site.statisticianleboo.github.io/download/download/2021 IA REPORT.pdf}}
