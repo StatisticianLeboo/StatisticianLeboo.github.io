@@ -121,5 +121,6 @@ The figure below is a word cloud illustrating some of the challenges the student
 ![Challenges experienced by the students](/img/posts/IA Survey/Challenges.png)
 
 Read the detailed report from the link below.
+{{/https://github.com/StatisticianLeboo/Projects/blob/main/Ian%20Kibet%20Leboo%20CV.pdf}}
 
-[2021 INDUSTRIAL ATTACTHMENT REPORT]{{/https://github.com/StatisticianLeboo/Projects/blob/main/Ian%20Kibet%20Leboo%20CV.pdf}}
+[2021 INDUSTRIAL ATTACTHMENT REPORT]{{/statisticianleboo.github.io/downoad/2021 IA REPORT.pdf}}
