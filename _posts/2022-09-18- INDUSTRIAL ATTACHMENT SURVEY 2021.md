@@ -110,8 +110,7 @@ COM students gained skills on data recovery and networking while ACS students ma
 
 Of the challenges and problems experienced by students, _Finance and Covid-19_ were the most prevalent. Industrial Attachees are rarely receive stipends to help them manage their experience yet most of them get attached in completely new environments. Covid-19 made it difficult for most students to secure an attachment and even when they got one, working from home limited the level of skills one could get. Accommodation and transport problems were also prevalent among most students. 
 
-Perhaps the most peculiar challenge was *Ingratitude*. Some students reported that they were being unappreciated yet they were tasked with huge workloads. Additionally, students reported to be mistreated by staffs and especially 
-BSE students who were being disregarded by TSC employed teachers. Some students reported to be homesick since they were far from family and friends. BSE students further reported cases of indiscipline among high school students to the extent of them being bullied due to their inexperience. 
+Perhaps the most peculiar challenge was *Ingratitude*. Some students reported that they were being unappreciated yet they were tasked with huge workloads. Additionally, students reported to be mistreated by staffs and especially BSE students who were being disregarded by TSC employed teachers. Some students reported to be homesick since they were far from family and friends. BSE students further reported cases of indiscipline among high school students to the extent of them being bullied due to their inexperience. 
 
 Organizational protocols were seemed as a challenge among some students more so for ACS, COM and AST cohorts. These protocols restricted the staff handing over access to equipment and workloads to students. 
 
