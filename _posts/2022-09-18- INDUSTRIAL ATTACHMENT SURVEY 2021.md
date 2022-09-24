@@ -119,4 +119,4 @@ Weather and environmental conditions of some locations were too severe for some 
 The figure below is a word cloud illustrating some of the challenges the students faced 
 ![Challenges experienced by the students](/img/posts/IA Survey/Challenges.png)
 
-Read the detailed report from this link[2021 INDUSTRIAL ATTACHMENT REPORT](https://drive.google.com/file/d/167p50-WwRWKxYQSZgU5bL_yynqmRDwUC/view?usp=sharing)
+Read the detailed report from this link[2021 INDUSTRIAL ATTACHMENT REPORT](/download/2021 IA REPORT.pdf)
