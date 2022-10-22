@@ -131,9 +131,8 @@ LSD.test(chicksmodel,"Treatment", console = TRUE)
 From the LSD, it is clear that treatment D is the most effective. There is no much difference between C and B, whereas A has the least treatment effect.
 
 ## Example 2 
-The data contains the amount of electricity used in KWh in
-three towns. Test at 5% significance whether the amount of electricity
-used is the same in the 3 towns. The steps are as example 1
+The data contains the amount of electricity used in KWh in three towns. Test at 5% significance whether the amount of electricity used is the same in the 3 towns. 
+The steps are as example 1
 
 ``` r
 library(readxl)
