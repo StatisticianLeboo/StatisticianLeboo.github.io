@@ -1,0 +1,646 @@
+I"�&<h1 id="survival-analysis">SURVIVAL ANALYSIS</h1>
+<p>Survival analysis is a branch of statistics that studies the time to event.
+Please feel free to read my two part series on the introduction to survival analysis from my Medium stories. <a href="https://medium.com/@Statistician_Leboo">https://medium.com/@Statistician_Leboo</a>
+This is a survival analysis project using the lung cancer data found from the survival package in R.</p>
+
+<h1 id="reading-the-data">Reading the data</h1>
+
+<p>The data is in the survival package. This package comes pre-installed in base R.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">survival</span><span class="p">)</span><span class="w">
+</span><span class="n">lung_data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lung</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="1-eda">1. EDA</h1>
+<h2 id="loading-required-packages">Loading required packages</h2>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">mice</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">Hmisc</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="describing-the-data">Describing the data</h2>
+<p>The data has 10 variables of different types. Before performing description of the data using the <em>describe</em> command from the <em>Hmisc</em> package, factor variables are converted from numeric so as to not give misleading insights. The variable <em>inst</em> is dropped has it offers no significant insights.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="o">-</span><span class="n">inst</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">status</span><span class="p">),</span><span class="w">
+         </span><span class="n">sex</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">sex</span><span class="p">),</span><span class="w">
+         </span><span class="n">ph.ecog</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ph.ecog</span><span class="p">),</span><span class="w">
+         </span><span class="n">pat.karno</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">pat.karno</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">describe</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## . 
+## 
+##  9  Variables      228  Observations
+## --------------------------------------------------------------------------------
+## time 
+##        n  missing distinct     Info     Mean      Gmd      .05      .10 
+##      228        0      186        1    305.2      228     53.0     80.4 
+##      .25      .50      .75      .90      .95 
+##    166.8    255.5    396.5    616.3    733.6 
+## 
+## lowest :    5   11   12   13   15, highest:  840  883  965 1010 1022
+## --------------------------------------------------------------------------------
+## status 
+##        n  missing distinct 
+##      228        0        2 
+##                       
+## Value          1     2
+## Frequency     63   165
+## Proportion 0.276 0.724
+## --------------------------------------------------------------------------------
+## age 
+##        n  missing distinct     Info     Mean      Gmd      .05      .10 
+##      228        0       42    0.999    62.45    10.31    45.35    50.00 
+##      .25      .50      .75      .90      .95 
+##    56.00    63.00    69.00    74.00    75.00 
+## 
+## lowest : 39 40 41 42 43, highest: 76 77 80 81 82
+## --------------------------------------------------------------------------------
+## sex 
+##        n  missing distinct 
+##      228        0        2 
+##                       
+## Value          1     2
+## Frequency    138    90
+## Proportion 0.605 0.395
+## --------------------------------------------------------------------------------
+## ph.ecog 
+##        n  missing distinct 
+##      227        1        4 
+##                                   
+## Value          0     1     2     3
+## Frequency     63   113    50     1
+## Proportion 0.278 0.498 0.220 0.004
+## --------------------------------------------------------------------------------
+## ph.karno 
+##        n  missing distinct     Info     Mean      Gmd 
+##      227        1        6    0.934    81.94    13.48 
+## 
+## lowest :  50  60  70  80  90, highest:  60  70  80  90 100
+##                                               
+## Value         50    60    70    80    90   100
+## Frequency      6    19    32    67    74    29
+## Proportion 0.026 0.084 0.141 0.295 0.326 0.128
+## --------------------------------------------------------------------------------
+## pat.karno 
+##        n  missing distinct 
+##      225        3        8 
+## 
+## lowest : 30  40  50  60  70 , highest: 60  70  80  90  100
+##                                                           
+## Value         30    40    50    60    70    80    90   100
+## Frequency      2     2     4    30    41    51    60    35
+## Proportion 0.009 0.009 0.018 0.133 0.182 0.227 0.267 0.156
+## --------------------------------------------------------------------------------
+## meal.cal 
+##        n  missing distinct     Info     Mean      Gmd      .05      .10 
+##      181       47       60    0.996    928.8    421.9      338      413 
+##      .25      .50      .75      .90      .95 
+##      635      975     1150     1225     1425 
+## 
+## lowest :   96  131  169  238  271, highest: 1500 2200 2350 2450 2600
+## --------------------------------------------------------------------------------
+## wt.loss 
+##        n  missing distinct     Info     Mean      Gmd      .05      .10 
+##      214       14       53    0.995    9.832    13.92    -5.00    -1.70 
+##      .25      .50      .75      .90      .95 
+##     0.00     7.00    15.75    28.00    33.35 
+## 
+## lowest : -24 -16 -15 -13 -11, highest:  39  49  52  60  68
+## --------------------------------------------------------------------------------
+</code></pre></div></div>
+
+<p>The <em>summary</em> command can also be used to generate further summary statistics.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="o">-</span><span class="n">inst</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">status</span><span class="p">),</span><span class="w">
+         </span><span class="n">sex</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">sex</span><span class="p">),</span><span class="w">
+         </span><span class="n">ph.ecog</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ph.ecog</span><span class="p">),</span><span class="w">
+         </span><span class="n">pat.karno</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">pat.karno</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summary</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##       time        status       age        sex     ph.ecog       ph.karno     
+##  Min.   :   5.0   1: 63   Min.   :39.00   1:138   0   : 63   Min.   : 50.00  
+##  1st Qu.: 166.8   2:165   1st Qu.:56.00   2: 90   1   :113   1st Qu.: 75.00  
+##  Median : 255.5           Median :63.00           2   : 50   Median : 80.00  
+##  Mean   : 305.2           Mean   :62.45           3   :  1   Mean   : 81.94  
+##  3rd Qu.: 396.5           3rd Qu.:69.00           NA's:  1   3rd Qu.: 90.00  
+##  Max.   :1022.0           Max.   :82.00                      Max.   :100.00  
+##                                                              NA's   :1       
+##    pat.karno     meal.cal         wt.loss       
+##  90     :60   Min.   :  96.0   Min.   :-24.000  
+##  80     :51   1st Qu.: 635.0   1st Qu.:  0.000  
+##  70     :41   Median : 975.0   Median :  7.000  
+##  100    :35   Mean   : 928.8   Mean   :  9.832  
+##  60     :30   3rd Qu.:1150.0   3rd Qu.: 15.750  
+##  (Other): 8   Max.   :2600.0   Max.   : 68.000  
+##  NA's   : 3   NA's   :47       NA's   :14
+</code></pre></div></div>
+
+<h2 id="visualizing-the-distribution-of-censored-and-dead-cases">Visualizing the distribution of Censored and Dead Cases</h2>
+<p>From the data, the event of interest is death. As explained in the theoretical blog, censoring occurs when the event of interest was not recorded during the study.</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">lung_data</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">status</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_histogram</span><span class="p">(</span><span class="n">bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">25</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.6</span><span class="p">,</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"identity"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">),</span><span class="w"> </span><span class="n">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"Censored"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Dead"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">ezfun</span><span class="o">::</span><span class="n">theme_ezbasic</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Days"</span><span class="p">,</span><span class="w">
+       </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Count"</span><span class="p">,</span><span class="w">
+       </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Distribution of Censored and Dead Cases"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p><img src="/img/posts/Survival Analysis/unnamed-chunk-5-1.png" alt="" /></p>
+
+<h2 id="visualizing-continuous-variables">Visualizing Continuous Variables</h2>
+<p>This set of code was obtained from <a href="https://rpubs.com/floreuzan/survivalanalysislungdata">Rpubs</a>. First of all, select continuous variables, then convert them into long format.
+Plot a histogram of the data faceting all variables. The colour schemes in this plot are from the <em>ezfun</em> package developed by <a href="https://github.com/zabore/ezfun">Emily Zabore</a>.</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">trl</span><span class="o">=</span><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+        </span><span class="n">select</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="n">meal.cal</span><span class="p">,</span><span class="w"> </span><span class="n">pat.karno</span><span class="p">,</span><span class="w"> </span><span class="n">ph.karno</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">wt.loss</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+        </span><span class="n">pivot_longer</span><span class="p">(</span><span class="o">-</span><span class="n">one_of</span><span class="p">(</span><span class="s2">"status"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+        </span><span class="n">mutate</span><span class="p">(</span><span class="n">had_event</span><span class="o">=</span><span class="n">ifelse</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Censored"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Died"</span><span class="p">))</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">trl</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">colour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">had_event</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_density</span><span class="p">(</span><span class="n">adjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1L</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"#112446"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_color_brewer</span><span class="p">(</span><span class="n">palette</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Set1"</span><span class="p">,</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Distribution Across Continuous Variables"</span><span class="p">,</span><span class="w">
+    </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Status"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">hrbrthemes</span><span class="o">::</span><span class="n">theme_modern_rc</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"top"</span><span class="p">,</span><span class="w">
+    </span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bold"</span><span class="p">,</span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">),</span><span class="w">
+    </span><span class="n">strip.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">12</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cyan"</span><span class="p">,</span><span class="w"> </span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bold.italic"</span><span class="p">),</span><span class="w">
+    </span><span class="n">strip.text.y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">12</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bold.italic"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">facet_wrap</span><span class="p">(</span><span class="n">.</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">scales</span><span class="o">=</span><span class="s2">"free"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p><img src="/img/posts/Survival Analysis/unnamed-chunk-6-1.png" alt="" />
+From the plot above, the distributions of the continuous variables do not display a normal distribution. However, I won’t dive much into checking for normality.</p>
+<h2 id="generating-crosstabs-for-categorical-variables-sex-event-and-phecog">Generating Crosstabs for categorical variables; sex, event and ph.ecog</h2>
+
+<p>Patient’s performance status (ECOG), is a standardized criteria used to
+measure how a disease impacts a patient’s daily living abilities. The
+scale assigns a scale from 0-5 as displayed in the figure below. <img src="D:/4.2/STA427-%20Survival%20Methods%20and%20Analysis/ecog%20arcin.png" alt="Ecog
+Perfomance
+Scale" /></p>
+
+<p>In the chunks below, we tabulate the three categorical variables. <em>ph.ecog</em> is the scale assigned by a physician to a patient depending on their living abilities.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">gt</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">janitor</span><span class="p">)</span><span class="w">
+</span><span class="n">options</span><span class="p">(</span><span class="n">dplyr.summarise.inform</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span><span class="w"> </span><span class="c1">#to prevent warnings from being displayed</span><span class="w">
+</span><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">sex</span><span class="p">,</span><span class="n">status</span><span class="p">,</span><span class="n">ph.ecog</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">drop_na</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">sex</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">sex</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Male"</span><span class="p">,</span><span class="s2">"Female"</span><span class="p">)),</span><span class="w">
+         </span><span class="n">status</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Censored"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Dead"</span><span class="p">)),</span><span class="w">
+         </span><span class="n">ph.ecog</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">0</span><span class="p">,</span><span class="s2">"0: Fully Active"</span><span class="p">,</span><span class="w"> 
+                                  </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"1: Restricted Physically"</span><span class="p">,</span><span class="w"> 
+                                                                    </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">2</span><span class="p">,</span><span class="s2">"2: In bed&lt;50% a day"</span><span class="p">,</span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">3</span><span class="p">,</span><span class="s2">"3: In bed&gt;50% a day"</span><span class="p">,</span><span class="w"> 
+                                                                           </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">4</span><span class="p">,</span><span class="s2">"4: Bed Bound"</span><span class="p">,</span><span class="w"> </span><span class="s2">"5: Dead"</span><span class="p">)))))))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">sex</span><span class="p">,</span><span class="n">ph.ecog</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summarise</span><span class="p">(</span><span class="n">Count</span><span class="o">=</span><span class="n">n</span><span class="p">())</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">group_modify</span><span class="p">(</span><span class="o">~</span><span class="n">.x</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">adorn_totals</span><span class="p">(</span><span class="n">where</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"row"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">gt</span><span class="p">()</span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">gtsave</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">"catVars.html"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<iframe src="/img/posts/Survival Analysis/catVars.html" height="600px" width="100%"></iframe>
+
+<p>The data had 228 observations. *63 (27.63%) were censored and 165 (72.37%) were recorded to have experienced the event of death. *90 (39.47%) were female while 138 (61.53%) were male. *63 (27.6%) of patients had a physicians ECOG score of 0, 113 (49.6%) had a score of 1, 50 (21.9%) has 2 while 1 (0.4%) had a score of 1 and 1 record had missing entry. The figures and tables below shows the distribution of patients across the three variables.</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">sex</span><span class="p">,</span><span class="n">status</span><span class="p">,</span><span class="n">ph.ecog</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">drop_na</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">sex</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">sex</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Male"</span><span class="p">,</span><span class="s2">"Female"</span><span class="p">)),</span><span class="w">
+         </span><span class="n">status</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Censored"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Dead"</span><span class="p">)),</span><span class="w">
+         </span><span class="n">ph.ecog</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ph.ecog</span><span class="p">),</span><span class="w">
+         </span><span class="n">ph.ecog1</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">0</span><span class="p">,</span><span class="s2">"0: Fully Active"</span><span class="p">,</span><span class="w"> 
+                                  </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"1: Restricted Physically"</span><span class="p">,</span><span class="w"> 
+                                                                    </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">2</span><span class="p">,</span><span class="s2">"2: In bed&lt;50% a day"</span><span class="p">,</span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">3</span><span class="p">,</span><span class="s2">"3: In bed&gt;50% a day"</span><span class="p">,</span><span class="w"> 
+                                                                           </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">4</span><span class="p">,</span><span class="s2">"4: Bed Bound"</span><span class="p">,</span><span class="w"> </span><span class="s2">"5: Dead"</span><span class="p">)))))))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ph.ecog1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dodge"</span><span class="p">)</span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_viridis_d</span><span class="p">(</span><span class="n">option</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"inferno"</span><span class="p">,</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Status"</span><span class="p">,</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Count"</span><span class="p">,</span><span class="w">
+    </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Comparison Across Categorical Variables"</span><span class="p">,</span><span class="w">
+    </span><span class="n">caption</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Lung Cancer Data"</span><span class="p">,</span><span class="w">
+    </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Physican's ECOG"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">hrbrthemes</span><span class="o">::</span><span class="n">theme_ft_rc</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">14L</span><span class="p">,</span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">),</span><span class="w">
+    </span><span class="n">plot.caption</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"italic"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">facet_wrap</span><span class="p">(</span><span class="n">vars</span><span class="p">(</span><span class="n">sex</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p><img src="/img/posts/Survival Analysis/unnamed-chunk-8-1.png" alt="" /></p>
+<h2 id="hypothesis-testing">Hypothesis Testing</h2>
+<h3 id="test-for-independence-among-categorical-variables">Test for Independence Among Categorical Variables</h3>
+<p>Chi-square goodness of fit test was used to assess the independence of these variables. The test was done 0.05 level of significance.</p>
+
+<p><em>Hypothesis</em> 
+Null: Independence among the variables.
+Alternative: Dependence among the variables.</p>
+
+<p><em>Rejection Criteria</em> 
+If p-value is less than alpha, the null hypothesis is rejected.</p>
+
+<p>To perform this, <em>cross tables</em> were build using the <em>gmodels</em> package that computes chi-square values.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">gmodels</span><span class="p">)</span><span class="w">
+</span><span class="n">cat_vars</span><span class="o">&lt;-</span><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">sex</span><span class="p">,</span><span class="n">status</span><span class="p">,</span><span class="n">ph.ecog</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">drop_na</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">sex</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">sex</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Male"</span><span class="p">,</span><span class="s2">"Female"</span><span class="p">)),</span><span class="w">
+         </span><span class="n">status</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Censored"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Dead"</span><span class="p">)),</span><span class="w">
+         </span><span class="n">ph.ecog</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">0</span><span class="p">,</span><span class="s2">"0: Fully Active"</span><span class="p">,</span><span class="w"> 
+                                  </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"1: Restricted Physically"</span><span class="p">,</span><span class="w"> 
+                                                                    </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">2</span><span class="p">,</span><span class="s2">"2: In bed&lt;50% a day"</span><span class="p">,</span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">3</span><span class="p">,</span><span class="s2">"3: In bed&gt;50% a day"</span><span class="p">,</span><span class="w"> 
+                                                                           </span><span class="n">ifelse</span><span class="p">(</span><span class="n">ph.ecog</span><span class="o">==</span><span class="m">4</span><span class="p">,</span><span class="s2">"4: Bed Bound"</span><span class="p">,</span><span class="w"> </span><span class="s2">"5: Dead"</span><span class="p">)))))))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">sex</span><span class="p">,</span><span class="n">ph.ecog</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="w">
+
+</span><span class="n">CrossTable</span><span class="p">(</span><span class="n">cat_vars</span><span class="o">$</span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">cat_vars</span><span class="o">$</span><span class="n">status</span><span class="p">,</span><span class="n">prop.r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="w"> </span><span class="n">prop.t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">,</span><span class="w"> 
+           </span><span class="n">prop.chisq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="n">prop.c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="w"> </span><span class="n">chisq</span><span class="o">=</span><span class="nb">T</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## 
+##  
+##    Cell Contents
+## |-------------------------|
+## |                       N |
+## |         N / Table Total |
+## |-------------------------|
+## 
+##  
+## Total Observations in Table:  227 
+## 
+##  
+##              | cat_vars$status 
+## cat_vars$sex |  Censored |      Dead | Row Total | 
+## -------------|-----------|-----------|-----------|
+##       Female |        37 |        53 |        90 | 
+##              |     0.163 |     0.233 |           | 
+## -------------|-----------|-----------|-----------|
+##         Male |        26 |       111 |       137 | 
+##              |     0.115 |     0.489 |           | 
+## -------------|-----------|-----------|-----------|
+## Column Total |        63 |       164 |       227 | 
+## -------------|-----------|-----------|-----------|
+## 
+##  
+## Statistics for All Table Factors
+## 
+## 
+## Pearson's Chi-squared test 
+## ------------------------------------------------------------
+## Chi^2 =  13.27044     d.f. =  1     p =  0.0002696233 
+## 
+## Pearson's Chi-squared test with Yates' continuity correction 
+## ------------------------------------------------------------
+## Chi^2 =  12.18955     d.f. =  1     p =  0.0004805786 
+## 
+## 
+</code></pre></div></div>
+
+<p>16.3% of the observations were female and were censored, while 23.3% were female and experienced death. On the other hand, 11.5% were male and were censored while 48.9% were male and experienced death. The Chi-square test was used to check for independence between sex and event. The null hypothesis in this case was existence of dependence between the two tested at 5% alpha level. The test reported a <em>p&lt;0.001</em> hence the null hypothesis was rejected. The test concluded that there existed sufficient statistical evidence at 5% significance to disapprove the claim that event was dependent on sex of patients.</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">CrossTable</span><span class="p">(</span><span class="n">cat_vars</span><span class="o">$</span><span class="n">ph.ecog</span><span class="p">,</span><span class="w"> </span><span class="n">cat_vars</span><span class="o">$</span><span class="n">status</span><span class="p">,</span><span class="n">prop.r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="w"> </span><span class="n">prop.c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="w">
+           </span><span class="n">prop.t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">,</span><span class="w"> </span><span class="n">prop.chisq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="w"> </span><span class="n">chisq</span><span class="o">=</span><span class="nb">T</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ##    Cell Contents
+## |-------------------------|
+## |                       N |
+## |         N / Table Total |
+## |-------------------------|
+## 
+##  
+## Total Observations in Table:  227 
+## 
+##  
+##                          | cat_vars$status 
+##         cat_vars$ph.ecog |  Censored |      Dead | Row Total | 
+## -------------------------|-----------|-----------|-----------|
+##          0: Fully Active |        26 |        37 |        63 | 
+##                          |     0.115 |     0.163 |           | 
+## -------------------------|-----------|-----------|-----------|
+## 1: Restricted Physically |        31 |        82 |       113 | 
+##                          |     0.137 |     0.361 |           | 
+## -------------------------|-----------|-----------|-----------|
+##      2: In bed&lt;50% a day |         6 |        44 |        50 | 
+##                          |     0.026 |     0.194 |           | 
+## -------------------------|-----------|-----------|-----------|
+##      3: In bed&gt;50% a day |         0 |         1 |         1 | 
+##                          |     0.000 |     0.004 |           | 
+## -------------------------|-----------|-----------|-----------|
+##             Column Total |        63 |       164 |       227 | 
+## -------------------------|-----------|-----------|-----------|
+## 
+##  
+## Statistics for All Table Factors
+## 
+## 
+## Pearson's Chi-squared test 
+## ------------------------------------------------------------
+## Chi^2 =  12.31869     d.f. =  3     p =  0.006367498 
+## 
+## 
+## 
+</code></pre></div></div>
+
+<p>Of the 63 patients who had ph.ecog scores of <em>0: Fully Active</em>, 11.5% of the observations were censored while 16.3% experienced death. 113 patients who had ph.ecog scores of <em>1: Restricted Physically</em>, 13.7% were censored while 36.1% experienced death. 50 patients had ph.ecog
+scores of <em>2: In bed less than 50% a day</em>. 2.6% were censored and 19.4% experienced death. 
+Only 1 patient,(0.4%) had a ph.ecog score of <em>3: In bed more than 50% a day</em> and the patient experienced death. 
+A Chi-square test of independence between ph.ecog score and event reported a <em>p&lt;0.01</em> implying that there wast sufficient evidence at 5% alpha level to suffice the dependence of experiencing event and ph.ecog.</p>
+
+<h3 id="do-both-women-and-men-experience-death-at-the-same-rates">Do both women and men experience death at the same rates?</h3>
+<p>A two-sample z-test was used to assess the difference between the males and females who died of lung cancer. The test was done 0.05 level of significance. Dummy variables were generated and z-test was used since the data has more than 30 variables. An assumption was made that the data is normal hence the parametric approach.</p>
+
+<p><em>Hypothesis</em> 
+Null: No difference between males and females. 
+Alternative: There is a difference between males and females.</p>
+
+<p><em>Rejection Criteria</em> 
+If p-value is less than alpha, the null hypothesis is rejected.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">BSDA</span><span class="p">)</span><span class="w">
+</span><span class="n">dead</span><span class="o">&lt;-</span><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="n">sex</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">subset</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">isMale</span><span class="o">=</span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">sex</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"1"</span><span class="p">,</span><span class="s2">"0"</span><span class="p">)),</span><span class="w">
+         </span><span class="n">isFemale</span><span class="o">=</span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">sex</span><span class="o">==</span><span class="m">2</span><span class="p">,</span><span class="s2">"1"</span><span class="p">,</span><span class="s2">"0"</span><span class="p">)))</span><span class="w">
+
+
+</span><span class="n">z.test</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">dead</span><span class="o">$</span><span class="n">isMale</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">dead</span><span class="o">$</span><span class="n">isFemale</span><span class="p">,</span><span class="w"> </span><span class="n">mu</span><span class="o">=</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">sigma.x</span><span class="o">=</span><span class="p">(</span><span class="n">sd</span><span class="p">(</span><span class="n">dead</span><span class="o">$</span><span class="n">isMale</span><span class="p">)),</span><span class="n">sigma.y</span><span class="o">=</span><span class="p">(</span><span class="n">sd</span><span class="p">(</span><span class="n">dead</span><span class="o">$</span><span class="n">isMale</span><span class="p">))</span><span class="w">
+       </span><span class="p">,</span><span class="n">alternative</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'two.sided'</span><span class="p">,</span><span class="w"> </span><span class="n">conf.level</span><span class="o">=</span><span class="m">0.95</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## 
+##  Two-sample z-Test
+## 
+## data:  dead$isMale and dead$isFemale
+## z = 6.9344, p-value = 4.078e-12
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  0.2565100 0.4586415
+## sample estimates:
+## mean of x mean of y 
+## 0.6787879 0.3212121
+</code></pre></div></div>
+
+<p>There was significant effect for sex for individual who experienced death, <em>Z(328) = 6.9334, p&lt;.001</em>. Males (<em>M=0.6788, SD = 0.4684</em>) experienced death more than females (<em>M = 0.3212, SD = 0.4684</em>). The null hypothesis is therefore rejected. The test concludes, there exists sufficient statistical evidence at 0.05 level of significance to deny the claim that the proportion of males and females that died of lung cancer was equal.</p>
+<h3 id="correlation-analysis-among-numeric-variables">Correlation Analysis Among Numeric Variables</h3>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">corrplot</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">RColorBrewer</span><span class="p">)</span><span class="w">
+</span><span class="n">num_data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+                  </span><span class="n">select</span><span class="p">(</span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="n">ph.karno</span><span class="p">,</span><span class="w"> </span><span class="n">pat.karno</span><span class="p">,</span><span class="w"> </span><span class="n">meal.cal</span><span class="p">,</span><span class="w"> </span><span class="n">wt.loss</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+                  </span><span class="n">replace</span><span class="p">(</span><span class="nf">is.na</span><span class="p">(</span><span class="n">.</span><span class="p">),</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w">
+
+</span><span class="n">corrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cor</span><span class="p">(</span><span class="n">num_data</span><span class="p">)</span><span class="w">
+</span><span class="n">corrplot</span><span class="p">(</span><span class="n">corrs</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="o">=</span><span class="s2">"hclust"</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s2">"shade"</span><span class="p">,</span><span class="w">
+         </span><span class="n">col</span><span class="o">=</span><span class="n">brewer.pal</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="m">8</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s2">"RdBu"</span><span class="p">),</span><span class="w"> </span><span class="n">addCoef.col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"black"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/img\posts\Survival Analysis\unnamed-chunk-12-1.png" alt="" /></p>
+
+<h1 id="2-survival-models">2. Survival Models</h1>
+<h2 id="21-kaplan-meier-model">2.1 Kaplan Meier Model</h2>
+<p>This is one of the most used models in Survival Analysis. The project builds some KM models as shown below.</p>
+<h3 id="model-1">Model 1</h3>
+<p>In this model, we look into the time to event and status of event of interest.</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">attach</span><span class="p">(</span><span class="n">lung_data</span><span class="p">)</span><span class="w">
+</span><span class="n">model1_kaplan</span><span class="o">&lt;-</span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="o">~</span><span class="m">1</span><span class="p">,</span><span class="w">
+                       </span><span class="n">type</span><span class="o">=</span><span class="s2">"kaplan-meier"</span><span class="p">)</span><span class="w">
+</span><span class="n">model1_kaplan</span><span class="w">
+</span><span class="n">detach</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Call: survfit(formula = Surv(time, status) ~ 1, type = "kaplan-meier")
+## 
+##        n events median 0.95LCL 0.95UCL
+## [1,] 228    165    310     285     363
+</code></pre></div></div>
+
+<p>There were 228 observations with the median time to event being recorded at <em>165 (285,363)</em> days. Use the <em>summary()</em> command to view the survival at different times and the confidence intervals. Please note that if the data set is small, the confidence intervals will be wide.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">model1_kaplan</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="visualizing-model-1">Visualizing Model 1</h4>
+
+<p>Below are some visualizations for the first model.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">model1_kaplan</span><span class="p">,</span><span class="w"> </span><span class="n">conf.int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="w"> </span><span class="n">xlab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Time in Days"</span><span class="p">,</span><span class="w"> 
+     </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"S(t)"</span><span class="p">,</span><span class="w"> </span><span class="n">main</span><span class="o">=</span><span class="s2">"KM Model"</span><span class="p">,</span><span class="w"> </span><span class="n">las</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">mark.time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">)</span><span class="w">
+</span><span class="c1"># Median survival</span><span class="w">
+</span><span class="n">abline</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="s2">"red"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="Survival-Analysis-Tutorial-Project_files/figure-gfm/unnamed-chunk-15-1.png" alt="" /><!-- -->
+You can visualize the model using the <em>ggsurvplot</em> function.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">survminer</span><span class="p">)</span><span class="w">
+</span><span class="n">attach</span><span class="p">(</span><span class="n">lung_data</span><span class="p">)</span><span class="w">
+</span><span class="n">mdl</span><span class="o">&lt;-</span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="o">~</span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">ggsurvplot</span><span class="p">(</span><span class="n">fit</span><span class="o">=</span><span class="n">mdl</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">lung_data</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="Survival-Analysis-Tutorial-Project_files/figure-gfm/unnamed-chunk-16-1.png" alt="" /><!-- --></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">detach</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="model-2">Model 2</h2>
+
+<p>In this model, we incorporate the variable sex into the model.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lung_data</span><span class="o">&lt;-</span><span class="n">lung_data</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">sex</span><span class="o">=</span><span class="n">ifelse</span><span class="p">(</span><span class="n">sex</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="s2">"Male"</span><span class="p">,</span><span class="s2">"Female"</span><span class="p">))</span><span class="w">
+</span><span class="n">attach</span><span class="p">(</span><span class="n">lung_data</span><span class="p">)</span><span class="w">
+</span><span class="n">model2_kaplan</span><span class="o">&lt;-</span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="o">~</span><span class="n">sex</span><span class="p">)</span><span class="w">
+</span><span class="n">model2_kaplan</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Call: survfit(formula = Surv(time, status) ~ sex)
+## 
+##              n events median 0.95LCL 0.95UCL
+## sex=Female  90     53    426     348     550
+## sex=Male   138    112    270     212     310
+</code></pre></div></div>
+
+<p>The summary of the model shows that there were a total of n=228
+observations. 53 out of the 90 females experienced death and their
+median time to event was <em>426 (348,550)</em> days. 112 out of the 138 males
+experienced death with their median time to event was <em>270 (212,310)</em>
+days. You can also generate a summary fpr the model.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">model2_kaplan</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="visualizing-model-2">Visualizing Model 2</h4>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">model2_kaplan</span><span class="p">,</span><span class="w"> </span><span class="n">conf.int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="w"> </span><span class="n">xlab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Time (Days)"</span><span class="p">,</span><span class="w"> </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"S(t)"</span><span class="p">,</span><span class="w">
+     </span><span class="n">main</span><span class="o">=</span><span class="s2">"KM MODEL"</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">),</span><span class="w"> </span><span class="n">las</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">lwd</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">mark.time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">)</span><span class="w">
+</span><span class="n">legend</span><span class="p">(</span><span class="m">900</span><span class="p">,</span><span class="m">0.95</span><span class="p">,</span><span class="w"> </span><span class="n">legend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"Male"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Female"</span><span class="p">),</span><span class="w"> </span><span class="n">lty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">lwd</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">),</span><span class="w">
+       </span><span class="n">bty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="n">cex</span><span class="o">=</span><span class="m">0.6</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="Survival-Analysis-Tutorial-Project_files/figure-gfm/unnamed-chunk-19-1.png" alt="" /><!-- --></p>
+
+<p>The <em>ggsurvplot</em> function allows for the comparison of the survival
+models and also the addition of the risk table. By default the test used
+is the log-rank test.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">ggsci</span><span class="p">)</span><span class="w">
+</span><span class="n">ggsurvplot</span><span class="p">(</span><span class="n">fit</span><span class="o">=</span><span class="n">model2_kaplan</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">lung_data</span><span class="p">,</span><span class="w"> </span><span class="n">conf.int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">palette</span><span class="w"> </span><span class="o">=</span><span class="s2">"aaas"</span><span class="w"> </span><span class="p">,</span><span class="w">
+           </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">linetype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"strata"</span><span class="w"> </span><span class="p">,</span><span class="n">pval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">risk.table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s2">"log-rank"</span><span class="p">,</span><span class="w">
+           </span><span class="n">tables.col</span><span class="o">=</span><span class="s2">"strata"</span><span class="p">,</span><span class="w"> </span><span class="n">tables.text</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="Survival-Analysis-Tutorial-Project_files/figure-gfm/unnamed-chunk-20-1.png" alt="" /><!-- --></p>
+
+<p>The null hypothesis in a log-rank test is that there is no difference
+between the curves. From the plot above, a p-value of <em>0.0013</em> was
+returned. Using an alpha level of 0.05, the null hypothesis is rejected.
+There exist sufficient statistical evidence at 5% alpha level to suffice
+a difference between the survival curves of males and females in the
+lung data.</p>
+
+<p>You can compare survival rates to other variables in the data. However,
+you can’t add many X variables since you will have many survival curves.
+The KM model only allows for categorical explanatory model.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">attach</span><span class="p">(</span><span class="n">lung_data</span><span class="p">)</span><span class="w">
+</span><span class="n">model3_kaplan</span><span class="o">&lt;-</span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="o">~</span><span class="n">ph.ecog</span><span class="o">+</span><span class="n">sex</span><span class="p">,</span><span class="w">
+                       </span><span class="n">type</span><span class="o">=</span><span class="s2">"kaplan-meier"</span><span class="p">)</span><span class="w">
+</span><span class="n">model3_kaplan</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Call: survfit(formula = Surv(time, status) ~ ph.ecog + sex, type = "kaplan-meier")
+## 
+##    1 observation deleted due to missingness 
+##                        n events median 0.95LCL 0.95UCL
+## ph.ecog=0, sex=Female 27      9    705     350      NA
+## ph.ecog=0, sex=Male   36     28    353     303     558
+## ph.ecog=1, sex=Female 42     28    450     345     687
+## ph.ecog=1, sex=Male   71     54    239     207     363
+## ph.ecog=2, sex=Female 21     16    239     199     444
+## ph.ecog=2, sex=Male   29     28    166     105     288
+## ph.ecog=3, sex=Male    1      1    118      NA      NA
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">survdiff</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="o">~</span><span class="n">ph.ecog</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Call:
+## survdiff(formula = Surv(time, status) ~ ph.ecog)
+## 
+## n=227, 1 observation deleted due to missingness.
+## 
+##             N Observed Expected (O-E)^2/E (O-E)^2/V
+## ph.ecog=0  63       37   54.153    5.4331    8.2119
+## ph.ecog=1 113       82   83.528    0.0279    0.0573
+## ph.ecog=2  50       44   26.147   12.1893   14.6491
+## ph.ecog=3   1        1    0.172    3.9733    4.0040
+## 
+##  Chisq= 22  on 3 degrees of freedom, p= 7e-05
+</code></pre></div></div>
+
+<h2 id="22-cox-proportional-hazards-model">2.2 Cox Proportional Hazards Model</h2>
+
+<p>This model obtains the hazard ratio in form of beta coefficients.
+However, we do not obtain the baseline hazard. Cox models allows for the
+inclusion of numerous X variables both numeric and categorical.</p>
+
+<h3 id="model-1-1">Model 1</h3>
+
+<p>The first model has the variable sex has the co-variate. If you use the
+original data to build the model, note that the variable sex has not
+been coded as a factor. Hence be keen on the reference point of the
+interpretation.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">attach</span><span class="p">(</span><span class="n">lung_data</span><span class="p">)</span><span class="w">
+</span><span class="n">model1_cox</span><span class="o">&lt;-</span><span class="n">coxph</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="o">~</span><span class="n">sex</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">model1_cox</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Call:
+## coxph(formula = Surv(time, status) ~ sex)
+## 
+##   n= 228, number of events= 165 
+## 
+##           coef exp(coef) se(coef)     z Pr(&gt;|z|)   
+## sexMale 0.5310    1.7007   0.1672 3.176  0.00149 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+##         exp(coef) exp(-coef) lower .95 upper .95
+## sexMale     1.701      0.588     1.226      2.36
+## 
+## Concordance= 0.579  (se = 0.021 )
+## Likelihood ratio test= 10.63  on 1 df,   p=0.001
+## Wald test            = 10.09  on 1 df,   p=0.001
+## Score (logrank) test = 10.33  on 1 df,   p=0.001
+</code></pre></div></div>
+
+<p>From the results, we have 165 individuals experiencing death out of a
+total of 228. The coefficients table displays that sex was a significant
+co-variate; <em>p(0.00149)</em>. From the output, at any given point of time,
+the log instantaneous risk of death is0.531 higher for males as compared
+to females. This means that the risk of death in males is higher than
+than of females. The <em>hazard ratio</em> is 1.7007. This tells us that, at
+any given point in time, Males are 1.7 times at risk of death as
+compared to Females ignoring all other variables. The hazard of death in
+Males at any given point of time lies between <em>(1.23,2.36)</em> times that
+of Females. Based on the evidence above, we can conclude that the Males
+are at more risk of death as compared to Females. This is because; a.
+The p-value is less than 0.05 b. The confidence interval does not
+contain 1. The tests below the output can confirm this.</p>
+
+<p>It can be estimated that at any given point of time, Males are 70% more
+likely to die as compared to females holding all other factors constant.</p>
+
+<p>**The Cox model does not compute the survival since we have no
+baseline *hazard.** You can try to build another model with more
+covariates as shown below. However, I will not explain the results.</p>
+
+<h3 id="model-2-1">Model 2</h3>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">attach</span><span class="p">(</span><span class="n">lung_data</span><span class="p">)</span><span class="w">
+</span><span class="n">model2_cox</span><span class="o">&lt;-</span><span class="n">coxph</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="o">~</span><span class="n">ph.karno</span><span class="o">+</span><span class="n">sex</span><span class="o">+</span><span class="n">meal.cal</span><span class="o">+</span><span class="n">wt.loss</span><span class="o">+</span><span class="n">ph.ecog</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">model2_cox</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Call:
+## coxph(formula = Surv(time, status) ~ ph.karno + sex + meal.cal + 
+##     wt.loss + ph.ecog)
+## 
+##   n= 170, number of events= 123 
+##    (58 observations deleted due to missingness)
+## 
+##                coef  exp(coef)   se(coef)      z Pr(&gt;|z|)    
+## ph.karno  0.0172016  1.0173504  0.0107977  1.593 0.111142    
+## sexMale   0.5709145  1.7698849  0.1976375  2.889 0.003868 ** 
+## meal.cal -0.0001044  0.9998956  0.0002547 -0.410 0.681983    
+## wt.loss  -0.0118639  0.9882062  0.0075110 -1.580 0.114213    
+## ph.ecog   0.8020020  2.2300010  0.2157204  3.718 0.000201 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+##          exp(coef) exp(-coef) lower .95 upper .95
+## ph.karno    1.0174     0.9829    0.9960     1.039
+## sexMale     1.7699     0.5650    1.2015     2.607
+## meal.cal    0.9999     1.0001    0.9994     1.000
+## wt.loss     0.9882     1.0119    0.9738     1.003
+## ph.ecog     2.2300     0.4484    1.4611     3.404
+## 
+## Concordance= 0.638  (se = 0.031 )
+## Likelihood ratio test= 24.4  on 5 df,   p=2e-04
+## Wald test            = 23.73  on 5 df,   p=2e-04
+## Score (logrank) test = 24.22  on 5 df,   p=2e-04
+</code></pre></div></div>
+
+<p>Thanks for going through this content. Survival analysis is such a wide
+field. I hope this simple project gives insights # References Read More
+about these models from the references below. Cox Proportional-Hazards
+Model. Statistical Tools for High-Throughput Data Analysis (STHDA).
+[<a href="http://www.sthda.com/english/wiki/cox-proportional-hazards-model">http://www.sthda.com/english/wiki/cox-proportional-hazards-model</a>]
+Prof. Mike Marin. Survival Analysis| Concepts and Implemntation in R.
+[<a href="https://youtube.com/playlist?list=PLqzoL9-eJTNDdnKvep_YHIwk2AMqHhuJ0">https://youtube.com/playlist?list=PLqzoL9-eJTNDdnKvep_YHIwk2AMqHhuJ0</a>]</p>
+:ET
