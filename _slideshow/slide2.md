@@ -1,5 +1,5 @@
 ---
-title: Me
+title: Slide Title
 image: /img/me/bgg.jpg
 description: Relaxing
 ---
