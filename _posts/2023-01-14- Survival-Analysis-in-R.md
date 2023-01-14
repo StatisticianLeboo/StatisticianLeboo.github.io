@@ -592,8 +592,7 @@ detach()
     ## Wald test            = 23.73  on 5 df,   p=2e-04
     ## Score (logrank) test = 24.22  on 5 df,   p=2e-04
 
-Thanks for going through this content. Survival analysis is such a wide
-field. I hope this simple project gives insights on the concepts of survival analysis. See you on the next one.
+Thanks for going through this content. Survival analysis is such a wide field. I hope this simple project gives insights on the concepts of survival analysis. See you on the next one.
 
 # References
 Read more about these models from the references below. 
