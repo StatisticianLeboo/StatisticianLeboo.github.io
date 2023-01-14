@@ -6,9 +6,9 @@ background: '/img/posts/Survival Analysis/unnamed-chunk-20-1.png'
 ---
 # SURVIVAL ANALYSIS
 Survival analysis is a branch of statistics that studies the time to event.
-Please feel free to read my two part series on the introduction to survival analysis from my Medium stories. <https://medium.com/@Statistician_Leboo>
-This is a survival analysis project using the lung cancer data found from the survival package in R.
+Please feel free to read my two part series on the introduction to survival analysis from my Medium stories. <https://medium.com/@Statistician_Leboo>.
 
+This is a survival analysis project using the lung cancer data found from the survival package in R.
 # Reading the data
 
 The data is in the survival package. This package comes pre-installed in base R.
