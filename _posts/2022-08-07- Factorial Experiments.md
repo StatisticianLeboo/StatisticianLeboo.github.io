@@ -29,12 +29,12 @@ I will not get into the manual derivations of how to solve factorial experiments
 
 ## Factorial Designs Using R
 
-To perform these experiments, we will use the *DoeBioresearch* read bout the package from the link below <https://cran.r-project.org/web/packages/doebioresearch/doebioresearch.pdf> package. 
-Additionally, I have partnered with two friends of mine who are both microbiologists and have allowed me to use their experimental data for this illustration.
+To perform these experiments, we will use the [*DoeBioresearch*](https://cran.r-project.org/web/packages/doebioresearch/doebioresearch.pdf) package. 
+Additionally, I have partnered with two friends; who are both microbiologists and have allowed me to use their experimental data for this illustration.
 
 ## Example 1
 
-In this example, my friend Joseah Lang’at check out his LinkedIn profile <https://www.linkedin.com/in/joseah-langat-3286a2178/> was performing an experiment *SENSITIVITY OF *Staphylococcus aureus* AND *Escherichia coli* TO *Zingiber officinale* AND *Allium sativum* EXTRACTS*. 
+In this example, my friend Joseah Lang’at check out his [LinkedIn profile](https://www.linkedin.com/in/joseah-langat-3286a2178/) was performing an experiment *SENSITIVITY OF *Staphylococcus aureus* AND *Escherichia coli* TO *Zingiber officinale* AND *Allium sativum* EXTRACTS*. 
 In simpler terms, the title of the experiment was assessing how sensitive the two bacteria were to extracts of ginger and garlic.
 
 The main objectives of the experiment were; 
@@ -265,7 +265,7 @@ From the plot, Garlic has the highest antimicrobial activity followed by mixed t
 to *S.aureus*
 
 ## Example 2
-In this example, my friend Gideon check out his LinkedIn page <https://www.linkedin.com/in/steve-gideons-b390761a1/> was performing an experiment title *Prevalence of Bovine Mastitis and their Anti-microbial Susceptibility Profile in London Ward, Nakuru County* 
+In this example, my friend Gideon check out his [LinkedIn page]9(https://www.linkedin.com/in/steve-gideons-b390761a1/) was performing an experiment title *Prevalence of Bovine Mastitis and their Anti-microbial Susceptibility Profile in London Ward, Nakuru County* 
 The objectives of the research were to determine the prevelence of mastitis, identify the most prevalent bacteria causing mastitis and determine their antimicrobial susceptibility profile.
 
 Bovine Mastitis is an inflammatory response of the udder tissue in mammary gland caused due to physical trauma or microorganism infections. It is considered the most common disease leading to economic loss in dairy industries due to reduced yield and poor quality of milk. (Henriques and Gomes, 2016)

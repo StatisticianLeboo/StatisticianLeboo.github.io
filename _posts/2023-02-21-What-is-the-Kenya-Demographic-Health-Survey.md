@@ -32,19 +32,20 @@ The 2022 KDHS indicators report focused on 17 main areas. They include; Health I
 
 The following stakeholders use the data from the surveys in different capacities;
 1. **The Kenyan Government.** Both levels of government, the Ministry of Health and the Treasury and the Department of Planning utilize the data from the survey to develop and evaluate policies that are targeted such as staffing and resource mobilization and distribution to regions as prescribed by the need thereby having maximum returns.
-2. **Academia fraternity and researchers** use the data to form baselines for their research. In a previous article on sampling, I described how previous research and surveys can be used to compute sample sizes for current research. Read more from here.
+2. **Academia fraternity and researchers** use the data to form baselines for their research. In a previous article on sampling, I described how previous research and surveys can be used to compute sample sizes for current research. Read more from [here](https://medium.com/@Statistician_Leboo/sampling-c52e8aaef2fb).
 3. **Non-Profit organizations.** NGOs supplement efforts made by the government in diverse sectors. The data from these surveys inform these organizations to develop targeted approaches to support government programs. Although these organizations are mainly non-profit, approaches such as this do ensure that they also get maximum return on their investments.
-4. **Citizens.** The citizens may use the data to hold their government accountable especially with the health sector being devolved in Kenya. The data from the survey may serve as a benchmark to assess how well their government is doing especially in sectors where they made key promises to the citizens
+4. **Citizens.** The citizens may use the data to hold their government accountable especially with the health sector being devolved in Kenya. The data from the survey may serve as a benchmark to assess how well their government is doing especially in sectors where they made key promises to the citizens.
 
 ## Conclusion
 
 In conclusion, the KDHS program offers great insights into our health sector's progress as a country. The survey allows the government and partners to evaluate and set policies that improve the health sector.
 I encourage everyone to go through the report and not to get carried away by the statistical findings that may be humorous but, instead appreciate the effort being made by the government and its partners in the health community.
-You can read the key indicators report here. <https://medium.com/@Statistician_Leboo/sampling-c52e8aaef2fb>
+You can read the key indicators report [here](https://dhsprogram.com/pubs/pdf/PR143/PR143.pdf). 
+
 # References
-1. Okello. G, Gerrets. R, Zakayo. S, Molyneux. S, (2018). "Every day they keep adding new tools but they don't take any away": Producing indicators for intermittent preventive treatment for malaria in pregnancy (IPTp) from routine data in Kenya: published on PLOS ONE. https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0189699
-2. Bester. H, Niyigenas. F, (2022). What is data-driven decision making and what does it mean for Rwanda?: published on Cenfri. https://cenfri.org/articles/what-is-data-driven-decision-making-and-what-does-it-mean-for-rwanda/#:~:text=One%20of%20the%20great%20benefits,or%20can%20have%20an%20impact
-3. Citizen TV Kenya. (2022, January 17) Demographic Health Survey | Most urban families opt for fewer children (Part 1). [YouTube Video].https://youtu.be/_79VFHqUQP0
-4. Demographic Health Surveys Program. https://dhsprogram.com/
-5. Kenya National Bureau of Statistics. https://www.knbs.or.ke/
-5. 2022 Kenya Demographic Health Survey Indicators Report. https://dhsprogram.com/pubs/pdf/PR143/PR143.pdf
+1. Okello. G, Gerrets. R, Zakayo. S, Molyneux. S, (2018). "Every day they keep adding new tools but they don't take any away": Producing indicators for intermittent preventive treatment for malaria in pregnancy (IPTp) from routine data in Kenya: published on PLOS ONE. <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0189699>
+2. Bester. H, Niyigenas. F, (2022). What is data-driven decision making and what does it mean for Rwanda?: published on Cenfri. <https://cenfri.org/articles/what-is-data-driven-decision-making-and-what-does-it-mean-for-rwanda/#:~:text=One%20of%20the%20great%20benefits,or%20can%20have%20an%20impact>
+3. Citizen TV Kenya. (2022, January 17) Demographic Health Survey|Most urban families opt for fewer children (Part 1). [YouTube Video].<https://youtu.be/_79VFHqUQP0>
+4. Demographic Health Surveys Program. <https://dhsprogram.com/>
+5. Kenya National Bureau of Statistics. <https://www.knbs.or.ke/>
+5. 2022 Kenya Demographic Health Survey Indicators Report. <https://dhsprogram.com/pubs/pdf/PR143/PR143.pdf>
