@@ -34,7 +34,7 @@ Additionally, I have partnered with two friends; who are both microbiologists an
 
 ## Example 1
 
-In this example, my friend Joseah Lang’at check out his [LinkedIn profile](https://www.linkedin.com/in/joseah-langat-3286a2178/) was performing an experiment *SENSITIVITY OF *Staphylococcus aureus* AND *Escherichia coli* TO *Zingiber officinale* AND *Allium sativum* EXTRACTS*. 
+In this example, my friend Joseah Lang’at check out his [LinkedIn profile](https://www.linkedin.com/in/langat-joseah-3286a2178/) was performing an experiment *SENSITIVITY OF *Staphylococcus aureus* AND *Escherichia coli* TO *Zingiber officinale* AND *Allium sativum* EXTRACTS*. 
 In simpler terms, the title of the experiment was assessing how sensitive the two bacteria were to extracts of ginger and garlic.
 
 The main objectives of the experiment were; 
